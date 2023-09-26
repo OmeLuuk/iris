@@ -1,3 +1,0 @@
-/home/luuk/dev/git/iris/build/CMakeFiles/iris.dir
-/home/luuk/dev/git/iris/build/CMakeFiles/edit_cache.dir
-/home/luuk/dev/git/iris/build/CMakeFiles/rebuild_cache.dir
