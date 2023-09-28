@@ -10,7 +10,8 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 # Include sub-directories
 add_subdirectory(common)
-add_subdirectory(src)
+add_subdirectory(src/server)
+add_subdirectory(src/client)
 
 # If you include other libraries in the future, link them here.
 # For example, for Boost.Asio:
