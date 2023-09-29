@@ -1,16 +1,21 @@
+#pragma once
+
+#include "../server/types.h"
 #include <string>
+#include <vector>
 #include <unistd.h>
 
-class UltraLowLatencyClient {
+class IrisClient {
 public:
-    UltraLowLatencyClient() : sockfd(-1) {}
-    ~UltraLowLatencyClient() {
+    IrisClient() : sockfd(-1) {}
+    ~IrisClient() {
         if (sockfd != -1) {
             close(sockfd);
         }
     }
     bool connectToServer(const std::string& ipAddress, int port);
-    bool sendMsg(const std::string& msg);
+    std::vector<char> createMsg(ClientType type, const char* msg);
+    bool sendMsg(const std::vector<char>& msg);
 
 private:
     int sockfd;

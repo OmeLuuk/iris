@@ -1,4 +1,5 @@
 #include "../../common/config.h"
+#include "types.h"
 #include <iostream>
 
 #include <sys/types.h>
@@ -7,12 +8,44 @@
 
 #include <sys/epoll.h>
 #include <unistd.h>
+#include <cstring>
 
 namespace
 {
     int MAX_EVENTS = 10; // defines how many events we wish to process in one event loop
     int MAX_CONN_REQUESTS = 10; // defines how many connection requests we will accept each time we emtpy our buffer. we can serve more clients, but they will need to try and connect again if there were 10 others trying to establish a connection with us at the same time
     int MAX_HANDLE_SIZE = 1024; // this is how much data from a message we will handle at once.
+
+    bool readIntroMessage(char buffer[])
+    {
+        try
+        {
+            ClientType clientType = static_cast<ClientType>(buffer[0]);
+            std::string ipAddress;
+            uint16_t port;
+            // Find the separator in the buffer
+            char* separatorPos = strchr(buffer + 1, ':');
+            if (separatorPos && separatorPos - buffer < strlen(buffer) - 2)
+            {
+                ipAddress = std::string(buffer + 1, separatorPos - buffer - 1);
+
+                uint16_t* portPtr = reinterpret_cast<uint16_t*>(separatorPos + 1);
+                if (separatorPos + 1 + sizeof(uint16_t) <= buffer + strlen(buffer))
+                {
+                    port = ntohs(*portPtr); // Convert from network byte order
+                    // Now you have clientType, ipAddress, and port
+                }
+            }
+
+            std::cout << "ClientType: " << clientType << std::endl;
+            std::cout << "Address: " << ipAddress << ":" << port << std::endl;
+            return true;
+        }
+        catch (...)
+        {
+            return false;
+        }
+    }
 }
 
 int main()
@@ -63,8 +96,7 @@ int main()
                 }
                 else
                 {
-                    // Process the message, for simplicity we'll just print it
-                    std::cout << "Received message: " << std::string(buffer, bytes_read) << std::endl;
+                    readIntroMessage(buffer);
                 }
             }
         }
