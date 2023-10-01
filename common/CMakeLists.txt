@@ -1,6 +1,7 @@
 # Create a library for the common utilities
 add_library(common STATIC
     config.cc
+    logging.cc
 )
 
 # Ensure the headers can be found

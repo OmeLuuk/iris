@@ -1,6 +1,12 @@
 #pragma once
 #include <string>
 
+enum MessageType
+{
+    INTRO_MSG = 0,
+    DATA_MSG = 1
+};
+
 enum ClientType
 {
     BROADCAST_PRODUCER = 0,
