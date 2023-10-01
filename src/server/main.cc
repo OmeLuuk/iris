@@ -1,5 +1,8 @@
-#include "../../common/config.h"
 #include "types.h"
+
+#include "config.h"
+#include "logging.h"
+
 #include <iostream>
 
 #include <sys/types.h>
@@ -16,11 +19,11 @@ namespace
     int MAX_CONN_REQUESTS = 10; // defines how many connection requests we will accept each time we emtpy our buffer. we can serve more clients, but they will need to try and connect again if there were 10 others trying to establish a connection with us at the same time
     int MAX_HANDLE_SIZE = 1024; // this is how much data from a message we will handle at once.
 
-    bool readIntroMessage(char* buffer, ssize_t bytesRead)
+    bool readIntroMessage(char *buffer, ssize_t bytesRead)
     {
         if (bytesRead < 1)
         {
-            std::cout << "Intro message was empty!" << std::endl;
+            log(LL::INFO, "Intro message was empty!");
             return false; // Check if we at least have the ClientType
         }
 
@@ -41,18 +44,18 @@ namespace
             }
             else
             {
-                std::cout << "Intro message did not have enough data to parse a port!" << std::endl;
+                log(LL::INFO, "Intro message did not have enough data to parse a port!");
                 return false; // Not enough data for port
             }
         }
         else
         {
-            std::cout << "Intro message did not contain a :, meaning the IPAddress:Port format is not present!" << std::endl;
+            log(LL::INFO, "Intro message did not contain a :, meaning the IPAddress:Port format is not present!");
             return false; // Separator not found
         }
 
-        std::cout << "ClientType: " << clientType << std::endl;
-        std::cout << "Address: " << ipAddress << ":" << port << std::endl;
+        log(LL::INFO, "ClientType: " + clientType);
+        log(LL::INFO, "Address: " + ipAddress + ":" + std::to_string(port));
 
         return true;
     }
@@ -82,14 +85,14 @@ int main()
     epoll_event events[MAX_EVENTS]; // allocates space for us to have epoll put events in so we can handle the events one by one in an event loop iteration
     while (true)
     {
-        std::cout << "waiting for new messages..." << std::endl;
+        log(LL::INFO, "waiting for new messages...");
 
         int num_fds = epoll_wait(epoll_fd, events, MAX_EVENTS, -1); // check the epoll monitor by its fd. if there iare one or more events in epoll's buffer ready to be processed, this method will put up to MAX_EVENTS of them into the events variable. otherwise, it will wait until the timeout before next lines of code are executed. the timeout of -1 means wait indefinitely
         for (int i = 0; i < num_fds; i++)
         {
             if (events[i].data.fd == server_fd) // this means a client tries to connect to us because this fd only accepts incoming connections since it needs to get a connection request first since we use tcp
             {
-                std::cout << "received a new client connection!" << std::endl;
+                log(LL::INFO, "received a new client connection!");
                 int client_fd = accept(server_fd, NULL, NULL); // this completes the tcp handshake and now we have accepted a connection with this client. the fd received from this represents the established connection and this fd is where we look for data we receive from the client that just connected to us
                 epoll_event client_event;
                 client_event.events = EPOLLIN;                                // we are interested in incoming data from this client
@@ -98,7 +101,7 @@ int main()
             }
             else if (events[i].events & EPOLLIN)
             {
-                std::cout << "received data from a client!" << std::endl;
+                log(LL::INFO, "received data from a client!");
                 char buffer[MAX_HANDLE_SIZE];                                            // this is some array where we will store
                 ssize_t bytes_read = recv(events[i].data.fd, buffer, sizeof(buffer), 0); // read the data from this event using its fd and store it in buffer
                 if (bytes_read <= 0)                                                     // 0: client disconnected gracefully; 1: client closed connectin with an error

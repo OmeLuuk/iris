@@ -1,5 +1,7 @@
 #include "iris_client.h"
 
+#include "logging.h"
+
 #include <iostream>
 #include <netinet/tcp.h>
 #include <cstring>
@@ -17,7 +19,7 @@ namespace
 
 IrisClient::IrisClient(ClientType type) : clientType(type)
 {
-    std::cout << "Setting up Iris connection. Will throw if a connection cannot be established" << std::endl;
+    log(LL::INFO, "Setting up Iris connection. Will throw if a connection cannot be established");
     setupConnection();
 }
 
@@ -34,7 +36,7 @@ int IrisClient::createSocket()
     int sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd == -1)
     {
-        std::cerr << "Error creating socket" << std::endl;
+        log(LL::ERROR, "Error creating socket");
     }
     return sockfd;
 }
@@ -44,7 +46,7 @@ bool IrisClient::configureSocket(int sockfd)
     int flag = 1;
     if (setsockopt(sockfd, IPPROTO_TCP, TCP_NODELAY, &flag, sizeof(int)) < 0) // Disable Nagle's algorithm
     {
-        std::cerr << "Error configuring socket" << std::endl;
+        log(LL::ERROR, "Error configuring socket");
         return false;
     }
     return true;
@@ -63,7 +65,7 @@ bool IrisClient::connectToServerAddress(int sockfd, const sockaddr_in &address)
 {
     if (connect(sockfd, (struct sockaddr *)&address, sizeof(address)) == -1)
     {
-        std::cerr << "Error connecting to server" << std::endl;
+        log(LL::ERROR, "Error connecting to server");
         return false;
     }
     return true;
@@ -76,14 +78,14 @@ void IrisClient::setupConnection()
         sockfd = createSocket();
         if (sockfd == -1)
         {
-            std::cerr << "Attempt [" << attempt + 1 << "] Error creating socket" << std::endl;
+            log(LL::ERROR, "Attempt [" + std::to_string(attempt + 1) + "] Error creating socket");
             std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_DURATION_MS));
             continue; // skip the rest of the loop and try again
         }
 
         if (!configureSocket(sockfd))
         {
-            std::cerr << "Attempt [" << attempt + 1 << "] Error configuring socket" << std::endl;
+            log(LL::ERROR, "Attempt [" + std::to_string(attempt + 1) + "] Error configuring socket");
             close(sockfd);
             sockfd = -1;
             std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_DURATION_MS));
@@ -93,14 +95,14 @@ void IrisClient::setupConnection()
         sockaddr_in serverAddress = prepareServerAddress();
         if (!connectToServerAddress(sockfd, serverAddress))
         {
-            std::cerr << "Attempt [" << attempt + 1 << "] Error connecting to server" << std::endl;
+            log(LL::ERROR, "Attempt [" + std::to_string(attempt + 1) + "] Error connecting to server");
             close(sockfd);
             sockfd = -1;
             std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_DURATION_MS));
             continue;
         }
 
-        std::cout << "Successfully established connection with Iris!" << std::endl;
+        log(LL::INFO, "Successfully established connection with Iris!");
         return;
     }
 
@@ -120,14 +122,14 @@ bool IrisClient::sendMsg(const std::vector<char> &msgToSend)
 {
     if (sockfd == -1)
     {
-        std::cerr << "Not connected to any server" << std::endl;
+        log(LL::ERROR, "Not connected to any server");
         return false;
     }
 
     ssize_t bytesSent = send(sockfd, msgToSend.data(), msgToSend.size(), 0);
     if (bytesSent != static_cast<ssize_t>(msgToSend.size()))
     {
-        std::cerr << "Failed to send the complete message" << std::endl;
+        log(LL::ERROR, "Failed to send the complete message");
         return false;
     }
 
