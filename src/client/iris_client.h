@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../server/types.h"
+#include "types.h"
 #include <string>
 #include <vector>
 #include <unistd.h>

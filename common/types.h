@@ -3,8 +3,9 @@
 
 enum MessageType
 {
-    INTRO_MSG = 0,
-    DATA_MSG = 1
+    ERROR = 0,
+    INTRO = 1,
+    DATA = 2
 };
 
 enum ClientType

@@ -9,6 +9,7 @@
 #include <sys/epoll.h>
 #include <unistd.h>
 #include <cstring>
+#include <vector>
 
 namespace
 {
@@ -17,7 +18,11 @@ namespace
     int MAX_HANDLE_SIZE = 1024; // this is how much data from a message we will handle at once.
 }
 
-IrisServer::IrisServer(int port)
+IrisServer::IrisServer(int port) : 
+    connectionHandler(
+        [this] (int fd, const void* data, size_t s) {onMessage(fd, data, s);},
+        [this] (const int fd) { onConnected(fd); },
+        [this] (const int fd) { onDisconnected(fd);})
 {
     server_fd = socket(AF_INET, SOCK_STREAM, 0); // tell OS, create a mailbox for me and give me an id (fd) so i can find it inside of my app here
 
@@ -71,51 +76,49 @@ void IrisServer::spin()
                 log(LL::INFO, "received data from a client!");
                 char buffer[MAX_HANDLE_SIZE];                                            // this is some array where we will store
                 ssize_t bytes_read = recv(events[i].data.fd, buffer, sizeof(buffer), 0); // read the data from this event using its fd and store it in buffer
-                if (bytes_read <= 0 ||                                                   // 0: client disconnected gracefully; 1: client closed connectin with an error
-                    !handleMessage(buffer, bytes_read))                                  // message parsing was unsuccessful
-                {
-                    close(events[i].data.fd);                                    // we close the connection to this client
-                    epoll_ctl(epoll_fd, EPOLL_CTL_DEL, events[i].data.fd, NULL); // we stop monitoring messages from this event bufer since it is disconnected
-                }
+                handleMessage(events[i].data.fd, buffer, bytes_read);
             }
         }
     }
 }
 
-bool IrisServer::handleMessage(char *buffer, ssize_t bytesRead)
+void IrisServer::handleMessage(const int client_fd, char *buffer, ssize_t bytesRead)
 {
-    if (bytesRead < 1)
+    if (bytesRead == 0)
     {
-        log(LL::ERROR, "Message was empty!");
-        return false;
+        disconnectClient(client_fd, "Client disconnected gracefully");
+        return;
+    }
+    if (bytesRead == -1)
+    {
+        disconnectClient(client_fd, "Client closed connectin with an error");
+        return;
     }
 
     MessageType type = static_cast<MessageType>(buffer[0]);
     switch (type)
     {
-    case MessageType::INTRO_MSG:
-        return handleIntroMessage(buffer + 1, bytesRead - 1);
-    case MessageType::DATA_MSG:
-        return handleDataMessage(buffer + 1, bytesRead - 1);
+    case MessageType::INTRO:
+        return handleIntroMessage(client_fd, buffer + 1, bytesRead - 1);
+    case MessageType::DATA:
+        return handleDataMessage(client_fd, buffer + 1, bytesRead - 1);
     default:
         log(LL::ERROR, "Unknown message type received!");
-        return false;
     }
 }
 
-bool IrisServer::handleIntroMessage(char *buffer, ssize_t bytesRead)
+void IrisServer::handleIntroMessage(const int client_fd, char *buffer, ssize_t bytesRead)
 {
     if (bytesRead < 1)
     {
-        log(LL::ERROR, "Intro message was empty!");
-        return false; // Check if we at least have the ClientType
+        disconnectClient(client_fd, "Intro message was empty!");
+        return;
     }
 
     ClientType clientType = static_cast<ClientType>(buffer[0]);
     std::string ipAddress;
-    uint16_t port = 0; // Initialize to prevent usage of uninitialized value
+    uint16_t port = 0;
 
-    // Find the separator in the buffer
     char *separatorPos = strchr(buffer + 1, ':');
     if (separatorPos)
     {
@@ -128,27 +131,52 @@ bool IrisServer::handleIntroMessage(char *buffer, ssize_t bytesRead)
         }
         else
         {
-            log(LL::ERROR, "Intro message did not have enough data to parse a port!");
-            return false; // Not enough data for port
+            disconnectClient(client_fd, "Intro message did not have enough data to parse a port!");
+            return;
         }
     }
     else
     {
-        log(LL::ERROR, "Intro message did not contain a :, meaning the IPAddress:Port format is not present!");
-        return false; // Separator not found
+        disconnectClient(client_fd, "Intro message did not contain a :, meaning the IPAddress:Port format is not present!");
+        return;
     }
 
     log(LL::INFO, "ClientType: " + clientType);
     log(LL::INFO, "Address: " + ipAddress + ":" + std::to_string(port));
-
-    return true;
 }
 
-bool IrisServer::handleDataMessage(char *buffer, ssize_t bytesRead)
+void IrisServer::handleDataMessage(const int client_fd, char *buffer, ssize_t bytesRead)
 {
     // Implementation for handling data messages
+}
 
-    // [Your implementation here]
+void IrisServer::disconnectClient(int client_fd, const std::string &reason)
+{
+    std::vector<char> message;
+    message.push_back(static_cast<char>(MessageType::ERROR));
+    message.insert(message.end(), reason.begin(), reason.end());
+    ssize_t bytesSent = send(client_fd, message.data(), message.size(), 0);
 
-    return true;
+    if (bytesSent < 0)
+    {
+        log(LL::ERROR, "Failed to send error message to client before disconnecting.");
+    }
+
+    close(client_fd);                                    // we close the connection to this client
+    log(LL::INFO, "Client disconnected with reason: " + reason);
+}
+
+void IrisServer::onMessage(int client_fd, const void *data, size_t size)
+{
+
+}
+
+void IrisServer::onConnected(const int client_fd)
+{
+
+}
+
+void IrisServer::onDisconnected(const int client_fd)
+{
+    epoll_ctl(epoll_fd, EPOLL_CTL_DEL, client_fd, NULL); // we stop monitoring messages from this event bufer since it is disconnected
 }
