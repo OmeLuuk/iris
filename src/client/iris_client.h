@@ -16,6 +16,5 @@ public:
     void sendMsg(const std::vector<char>& msg);
 
 private:
-    ClientType clientType;
     ClientConnectionHandler clientConnectionHandler;
 };

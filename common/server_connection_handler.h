@@ -9,10 +9,10 @@
 #include <netinet/in.h>
 #include <unistd.h>
 
-class ConnectionHandler : public BaseConnectionHandler
+class ServerConnectionHandler : public BaseConnectionHandler
 {
 public:
-    ConnectionHandler(MessageCallback onMessage, ConnectionCallback onConnect, ConnectionCallback onDisconnect);
+    ServerConnectionHandler(MessageCallback onMessage, ConnectionCallback onConnect, ConnectionCallback onDisconnect);
 
     void onConnected(int client_fd);
     void onDisconnected(int client_fd);
