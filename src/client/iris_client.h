@@ -1,5 +1,6 @@
 #pragma once
 
+#include "client_connection_handler.h"
 #include "types.h"
 #include <string>
 #include <vector>
@@ -10,19 +11,11 @@
 class IrisClient {
 public:
     IrisClient(ClientType type);
-    ~IrisClient();
 
     std::vector<char> createMsg(ClientType type, const char* msg);
-    bool sendMsg(const std::vector<char>& msg);
+    void sendMsg(const std::vector<char>& msg);
 
 private:
-    int sockfd;
     ClientType clientType;
-
-    int createSocket();
-    bool configureSocket(int sockfd);
-    sockaddr_in prepareServerAddress();
-    bool connectToServerAddress(int sockfd, const sockaddr_in &address);
-
-    void setupConnection();
+    ClientConnectionHandler clientConnectionHandler;
 };
