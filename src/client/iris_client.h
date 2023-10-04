@@ -1,6 +1,6 @@
 #pragma once
 
-#include "client_connection_handler.h"
+#include "client_connection_manager.h"
 #include "types.h"
 #include <string>
 #include <vector>
@@ -16,5 +16,5 @@ public:
     void sendMsg(const std::vector<char>& msg);
 
 private:
-    ClientConnectionHandler clientConnectionHandler;
+    ClientConnectionManager clientConnectionManager;
 };

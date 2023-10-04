@@ -9,7 +9,7 @@
 #include <chrono>
 #include <thread>
 
-IrisClient::IrisClient(ClientType type) : clientConnectionHandler()
+IrisClient::IrisClient(ClientType type) : clientConnectionManager()
 {
 }
 
@@ -24,5 +24,5 @@ std::vector<char> IrisClient::createMsg(ClientType type, const char *msg)
 
 void IrisClient::sendMsg(const std::vector<char> &msgToSend)
 {
-    clientConnectionHandler.sendMessage(MessageType::INTRO, msgToSend);
+    clientConnectionManager.sendMessage(MessageType::INTRO, msgToSend);
 }

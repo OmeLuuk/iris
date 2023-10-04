@@ -1,24 +1,18 @@
 #pragma once
 
-#include "server_connection_handler.h"
+#include "server_connection_manager.h"
+#include "engine.h"
 
 #include <unistd.h>
 #include <string>
 
-class IrisServer
+class IrisServer : public Engine
 {
 public:
-    IrisServer(int port);
+    IrisServer(int port, ServerConnectionManager &handler);
     ~IrisServer();
-    void spin();
 
 private:
-    void onMessage(int client_fd, const void *data, size_t size);
-    void onConnected(const int client_fd);
-    void onDisconnected(const int client_fd);
-
-    int server_fd;
-    int epoll_fd;
-
-    ServerConnectionHandler connectionHandler;
+    void onMessage(int client_fd, const void *data, size_t size) override;
+    void onConnected(const int client_fd) override;
 };

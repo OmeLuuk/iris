@@ -1,13 +1,13 @@
 #pragma once
 
-#include "base_connection_handler.h"
+#include "base_connection_manager.h"
 #include <netinet/in.h>
 
-class ClientConnectionHandler : public BaseConnectionHandler
+class ClientConnectionManager : public BaseConnectionManager
 {
 public:
-    ClientConnectionHandler();
-    ~ClientConnectionHandler();
+    ClientConnectionManager();
+    ~ClientConnectionManager();
     void onConnected(int server_fd);
     void onDisconnected(int server_fd);
 

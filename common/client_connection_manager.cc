@@ -1,4 +1,4 @@
-#include "client_connection_handler.h"
+#include "client_connection_manager.h"
 #include "logging.h"
 
 #include <iostream>
@@ -21,13 +21,13 @@ namespace
     constexpr int SLEEP_DURATION_MS = 100;
 }
 
-ClientConnectionHandler::ClientConnectionHandler()
+ClientConnectionManager::ClientConnectionManager()
 {
     log(LL::INFO, "Setting up Iris connection. Will throw if a connection cannot be established");
     setupConnection();
 }
 
-ClientConnectionHandler::~ClientConnectionHandler()
+ClientConnectionManager::~ClientConnectionManager()
 {
     if (sockfd != -1)
     {
@@ -35,7 +35,7 @@ ClientConnectionHandler::~ClientConnectionHandler()
     }
 }
 
-int ClientConnectionHandler::createSocket()
+int ClientConnectionManager::createSocket()
 {
     int sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd == -1)
@@ -45,7 +45,7 @@ int ClientConnectionHandler::createSocket()
     return sockfd;
 }
 
-bool ClientConnectionHandler::configureSocket(int sockfd)
+bool ClientConnectionManager::configureSocket(int sockfd)
 {
     int flag = 1;
     if (setsockopt(sockfd, IPPROTO_TCP, TCP_NODELAY, &flag, sizeof(int)) < 0) // Disable Nagle's algorithm
@@ -56,7 +56,7 @@ bool ClientConnectionHandler::configureSocket(int sockfd)
     return true;
 }
 
-sockaddr_in ClientConnectionHandler::prepareServerAddress()
+sockaddr_in ClientConnectionManager::prepareServerAddress()
 {
     sockaddr_in serverAddress; // this is the socket of the server we want to connect to
     serverAddress.sin_family = AF_INET;
@@ -65,7 +65,7 @@ sockaddr_in ClientConnectionHandler::prepareServerAddress()
     return serverAddress;
 }
 
-bool ClientConnectionHandler::connectToServerAddress(int sockfd, const sockaddr_in &address)
+bool ClientConnectionManager::connectToServerAddress(int sockfd, const sockaddr_in &address)
 {
     if (connect(sockfd, (struct sockaddr *)&address, sizeof(address)) == -1)
     {
@@ -75,7 +75,7 @@ bool ClientConnectionHandler::connectToServerAddress(int sockfd, const sockaddr_
     return true;
 }
 
-void ClientConnectionHandler::setupConnection()
+void ClientConnectionManager::setupConnection()
 {
     for (int attempt = 0; attempt < MAX__RECONNECT_RETRIES; ++attempt)
     {
@@ -113,7 +113,7 @@ void ClientConnectionHandler::setupConnection()
     throw std::runtime_error("Could not establish a connection with Iris");
 }
 
-void ClientConnectionHandler::onMessageReceived(const int server_fd, const uint8_t *data, const size_t size)
+void ClientConnectionManager::onMessageReceived(const int server_fd, const uint8_t *data, const size_t size)
 {
     MessageType type = static_cast<MessageType>(data[0]);
     switch (type)
@@ -129,11 +129,10 @@ void ClientConnectionHandler::onMessageReceived(const int server_fd, const uint8
     }
 }
 
-void ClientConnectionHandler::onConnected(int server_fd)
+void ClientConnectionManager::onConnected(int server_fd)
 {
-    // Implement logic.
 }
 
-void ClientConnectionHandler::onDisconnected(int server_fd)
+void ClientConnectionManager::onDisconnected(int server_fd)
 {
 }

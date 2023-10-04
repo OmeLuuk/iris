@@ -1,4 +1,4 @@
-#include "base_connection_handler.h"
+#include "base_connection_manager.h"
 #include "logging.h"
 
 #include <string>
@@ -9,7 +9,7 @@
 #include <unistd.h>
 #include <cstring>
 
-void BaseConnectionHandler::sendMessage(MessageType type, const std::vector<char> &message)
+void BaseConnectionManager::sendMessage(MessageType type, const std::vector<char> &message)
 {
     if (sockfd == -1)
     {
@@ -17,13 +17,13 @@ void BaseConnectionHandler::sendMessage(MessageType type, const std::vector<char
         return;
     }
 
-    uint32_t msgSizeNetworkOrder = htonl(static_cast<uint32_t>(message.size() + 1));   // +1 for the message type byte
-    std::vector<char> fullMsg(sizeof(msgSizeNetworkOrder) + message.size() + 1);       // +1 for message type
+    uint32_t msgSizeNetworkOrder = htonl(static_cast<uint32_t>(message.size() + 1)); // +1 for the message type byte
+    std::vector<char> fullMsg(sizeof(msgSizeNetworkOrder) + message.size() + 1);     // +1 for message type
 
     // Copy the size, message type, and message into the full message
     std::memcpy(fullMsg.data(), &msgSizeNetworkOrder, sizeof(msgSizeNetworkOrder));
-    fullMsg[sizeof(msgSizeNetworkOrder)] = static_cast<char>(MessageType::INTRO);                     // Replace YOUR_TYPE with actual type
-    std::copy(message.begin(), message.end(), fullMsg.begin() + sizeof(msgSizeNetworkOrder) + 1);     // +1 for the message type byte
+    fullMsg[sizeof(msgSizeNetworkOrder)] = static_cast<char>(MessageType::INTRO);
+    std::copy(message.begin(), message.end(), fullMsg.begin() + sizeof(msgSizeNetworkOrder) + 1); // +1 for the message type byte
 
     ssize_t bytesSent = send(sockfd, fullMsg.data(), fullMsg.size(), 0);
     if (bytesSent != static_cast<ssize_t>(fullMsg.size()))
@@ -33,16 +33,22 @@ void BaseConnectionHandler::sendMessage(MessageType type, const std::vector<char
 }
 
 // TODO: refactor to have less code in one function
-void BaseConnectionHandler::onDataReceived(const int fd, const char* data, ssize_t bytes_read)
+void BaseConnectionManager::onDataReceived(const int fd, const char *data, ssize_t bytes_read)
 {
     if (bytes_read == 0)
     {
-        disconnect(fd, "Client disconnected gracefully");
+        disconnect(fd, "client disconnected gracefully");
         return;
     }
     if (bytes_read == -1)
     {
-        disconnect(fd, "Client closed connection with an error");
+        disconnect(fd, "client closed connection with an error");
+        return;
+    }
+
+    if (!eventHandler)
+    {
+        log(LL::ERROR, "received data while there is no handler to handle it");
         return;
     }
 
@@ -92,7 +98,23 @@ void BaseConnectionHandler::onDataReceived(const int fd, const char* data, ssize
     }
 }
 
-void BaseConnectionHandler::disconnect(const int client_fd, const std::string &reason)
+void BaseConnectionManager::setHandler(EventHandler *newEventHandler)
+{
+    if (eventHandler)
+        log(LL::ERROR, "eventhandler set attempt while there is another eventhandler already");
+    else
+        eventHandler = newEventHandler;
+}
+
+void BaseConnectionManager::resetHandler(EventHandler *callingEventHandler)
+{
+    if (callingEventHandler == eventHandler)
+        eventHandler = nullptr;
+    else
+        log(LL::ERROR, "eventhandler reset attempt by non-current eventhandler");
+}
+
+void BaseConnectionManager::disconnect(const int client_fd, const std::string &reason)
 {
     std::vector<char> message;
     message.push_back(static_cast<char>(MessageType::ERROR));
@@ -107,4 +129,6 @@ void BaseConnectionHandler::disconnect(const int client_fd, const std::string &r
     close(client_fd); // we close the connection to this client
     clientBuffers.erase(client_fd);
     log(LL::INFO, "Client disconnected with reason: " + reason);
+
+    eventHandler->onDisconnected(client_fd);
 }

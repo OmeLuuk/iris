@@ -2,9 +2,10 @@
 add_library(common STATIC
     config.cc
     logging.cc
-    base_connection_handler.cc
-    server_connection_handler.cc
-    client_connection_handler.cc
+    engine.cc
+    base_connection_manager.cc
+    server_connection_manager.cc
+    client_connection_manager.cc
 )
 
 # Ensure the headers can be found
