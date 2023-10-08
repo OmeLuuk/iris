@@ -17,13 +17,21 @@ void BaseConnectionManager::sendMessage(MessageType type, const std::vector<char
         return;
     }
 
-    uint32_t msgSizeNetworkOrder = htonl(static_cast<uint32_t>(message.size() + 1)); // +1 for the message type byte
+    uint32_t msgSizeNetworkOrder = htonl(static_cast<uint32_t>(message.size() + 5)); // +1 for the message type byte, +4 for the message size
     std::vector<char> fullMsg(sizeof(msgSizeNetworkOrder) + message.size() + 1);     // +1 for message type
 
     // Copy the size, message type, and message into the full message
     std::memcpy(fullMsg.data(), &msgSizeNetworkOrder, sizeof(msgSizeNetworkOrder));
     fullMsg[sizeof(msgSizeNetworkOrder)] = static_cast<char>(MessageType::INTRO);
     std::copy(message.begin(), message.end(), fullMsg.begin() + sizeof(msgSizeNetworkOrder) + 1); // +1 for the message type byte
+
+    if constexpr (enableDebugLogging)
+    {
+        std::string s;
+        for (int i = 0; i < fullMsg.size(); i++)
+            s += std::to_string(static_cast<int>(fullMsg[i])) + ",";
+        log(LL::DEBUG, s);
+    }
 
     ssize_t bytesSent = send(sockfd, fullMsg.data(), fullMsg.size(), 0);
     if (bytesSent != static_cast<ssize_t>(fullMsg.size()))

@@ -6,7 +6,7 @@
 class ClientConnectionManager : public BaseConnectionManager
 {
 public:
-    ClientConnectionManager();
+    ClientConnectionManager(const ClientType clientType);
     ~ClientConnectionManager();
     void onConnected(int server_fd);
     void onDisconnected(int server_fd);

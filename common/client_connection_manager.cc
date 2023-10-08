@@ -21,10 +21,14 @@ namespace
     constexpr int SLEEP_DURATION_MS = 100;
 }
 
-ClientConnectionManager::ClientConnectionManager()
+ClientConnectionManager::ClientConnectionManager(const ClientType clientType)
 {
     log(LL::INFO, "Setting up Iris connection. Will throw if a connection cannot be established");
     setupConnection();
+
+    std::vector<char> fullMsg(1, static_cast<char>(clientType));
+
+    sendMessage(MessageType::INTRO, fullMsg);
 }
 
 ClientConnectionManager::~ClientConnectionManager()

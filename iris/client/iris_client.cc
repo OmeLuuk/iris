@@ -9,7 +9,7 @@
 #include <chrono>
 #include <thread>
 
-IrisClient::IrisClient(ClientType type) : clientConnectionManager()
+IrisClient::IrisClient(ClientType type) : clientConnectionManager(type)
 {
 }
 

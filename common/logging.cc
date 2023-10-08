@@ -7,6 +7,9 @@
 
 void log(LL level, const std::string &message)
 {
+    if constexpr (!enableDebugLogging && (level == LL::DEBUG))
+        return;
+
     const auto now = std::chrono::system_clock::now();
     const auto now_time_t = std::chrono::system_clock::to_time_t(now);
     const auto ns = std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch()) % 1000000000;
@@ -16,17 +19,22 @@ void log(LL level, const std::string &message)
     const char *colorReset = "\033[0m";
     const char *levelStr;
     const char *colorCode;
-    std::ostream &stream = (level == LL::INFO) ? std::cout : std::cerr;
+    std::ostream &stream = (level == LL::ERROR) ? std::cerr : std::cout;
 
-    if (level == LL::INFO)
+    switch (level)
     {
+    case LL::INFO:
         levelStr = "INFO ";
-        colorCode = ""; // No color code for INFO
-    }
-    else
-    {
+        colorCode = "";
+        break;
+    case LL::DEBUG:
+        levelStr = "DEBUG";
+        colorCode = "";
+        break;
+    case LL::ERROR:
         levelStr = "ERROR";
-        colorCode = "\033[31m"; // Red for ERROR
+        colorCode = "\033[31m";
+        break;
     }
 
     stream << "[" << timestamp << "." << std::setw(9) << std::setfill('0') << ns.count()
