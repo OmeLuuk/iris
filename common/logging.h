@@ -15,4 +15,5 @@ enum class LL
     ERROR
 };
 
+void log(LL level, const void *data, size_t size);
 void log(LL level, const std::string &message);

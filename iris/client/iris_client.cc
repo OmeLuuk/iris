@@ -22,7 +22,7 @@ std::vector<char> IrisClient::createMsg(ClientType type, const char *msg)
     return fullMsg;
 }
 
-void IrisClient::sendMsg(const std::vector<char> &msgToSend)
+void IrisClient::sendMsg(const MessageType type, const std::vector<char> &msgToSend)
 {
-    clientConnectionManager.sendMessage(MessageType::INTRO, msgToSend);
+    clientConnectionManager.sendMessage(type, msgToSend);
 }

@@ -22,6 +22,8 @@ IrisServer::~IrisServer()
 
 void IrisServer::onMessage(int client_fd, const void *data, size_t size)
 {
+    log(LL::INFO, "Received a message:");
+    log(LL::INFO, data, size);
 }
 
 void IrisServer::onConnected(const int client_fd)

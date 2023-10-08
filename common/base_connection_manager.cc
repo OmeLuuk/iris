@@ -22,7 +22,7 @@ void BaseConnectionManager::sendMessage(MessageType type, const std::vector<char
 
     // Copy the size, message type, and message into the full message
     std::memcpy(fullMsg.data(), &msgSizeNetworkOrder, sizeof(msgSizeNetworkOrder));
-    fullMsg[sizeof(msgSizeNetworkOrder)] = static_cast<char>(MessageType::INTRO);
+    fullMsg[sizeof(msgSizeNetworkOrder)] = static_cast<char>(type);
     std::copy(message.begin(), message.end(), fullMsg.begin() + sizeof(msgSizeNetworkOrder) + 1); // +1 for the message type byte
 
     if constexpr (enableDebugLogging)
@@ -30,6 +30,7 @@ void BaseConnectionManager::sendMessage(MessageType type, const std::vector<char
         std::string s;
         for (int i = 0; i < fullMsg.size(); i++)
             s += std::to_string(static_cast<int>(fullMsg[i])) + ",";
+        log(LL::DEBUG, "Sending a message of size " + std::to_string(message.size() + 5) + " with the following bytes:");
         log(LL::DEBUG, s);
     }
 
