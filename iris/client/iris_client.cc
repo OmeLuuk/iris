@@ -13,15 +13,6 @@ IrisClient::IrisClient(ClientType type) : clientConnectionManager(type)
 {
 }
 
-std::vector<char> IrisClient::createMsg(ClientType type, const char *msg)
-{
-    std::vector<char> fullMsg(1024, '\0');
-    fullMsg[0] = static_cast<char>(type);
-    size_t msgLength = std::min(strlen(msg), (size_t)1023);
-    std::copy(msg, msg + msgLength, fullMsg.begin() + 1);
-    return fullMsg;
-}
-
 void IrisClient::sendMsg(const MessageType type, const std::vector<char> &msgToSend)
 {
     clientConnectionManager.sendMessage(type, msgToSend);

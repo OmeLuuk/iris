@@ -10,6 +10,7 @@
 #include <unistd.h>
 #include <cstring>
 #include <vector>
+#include <thread>
 
 namespace
 {
@@ -51,7 +52,7 @@ Engine::~Engine()
     }
 }
 
-void Engine::EventLoop()
+void Engine::ReactiveEventLoop()
 {
     epoll_event events[MAX_EVENTS]; // allocates space for us to have epoll put events in so we can handle the events one by one in an event loop iteration
     while (true)
@@ -80,6 +81,22 @@ void Engine::EventLoop()
         }
     }
 }
+
+void Engine::EventLoop(const std::chrono::milliseconds waitTime = std::chrono::milliseconds(0))
+{
+    while (true)
+    {
+        EventCycle();
+
+        if (waitTime > std::chrono::milliseconds(0)) [[unlikely]]
+        {
+            std::this_thread::sleep_for(waitTime);
+        }
+    }
+}
+
+void Engine::EventCycle()
+{}
 
 void Engine::Disconnect(int fd)
 {

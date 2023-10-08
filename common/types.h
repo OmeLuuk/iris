@@ -9,25 +9,26 @@ enum MessageType
     DATA = 2
 };
 
-enum ClientType
+enum class ClientType
 {
-    BROADCAST_PRODUCER = 0,
-    BROADCAST_CONSUMER = 1,
-    PROXY_CLIENT = 2,
-    DNS_CLIENT = 3,
+    UNKNOWN = 0,
+    BROADCAST_PRODUCER = 1,
+    BROADCAST_CONSUMER = 2,
+    PROXY_CLIENT = 3,
+    DNS_CLIENT = 4,
 };
 
 inline std::string ToString(ClientType clientType)
 {
     switch (clientType)
     {
-    case BROADCAST_PRODUCER:
+    case ClientType::BROADCAST_PRODUCER:
         return "BROADCAST_PRODUCER";
-    case BROADCAST_CONSUMER:
+    case ClientType::BROADCAST_CONSUMER:
         return "BROADCAST_CONSUMER";
-    case PROXY_CLIENT:
+    case ClientType::PROXY_CLIENT:
         return "PROXY_CLIENT";
-    case DNS_CLIENT:
+    case ClientType::DNS_CLIENT:
         return "DNS_CLIENT";
     }
 

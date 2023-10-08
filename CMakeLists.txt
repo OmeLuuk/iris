@@ -4,7 +4,7 @@ project(Iris)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 # Set the C++ standard
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -12,6 +12,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 add_subdirectory(common)
 add_subdirectory(iris/server)
 add_subdirectory(iris/client)
+add_subdirectory(prisma/producer)
 
 # If you include other libraries in the future, link them here.
 # For example, for Boost.Asio:

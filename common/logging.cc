@@ -7,7 +7,7 @@
 
 void log(LL level, const void *data, size_t size)
 {
-    if constexpr (!enableDebugLogging && (level == LL::DEBUG))
+    if (!enableDebugLogging && (level == LL::DEBUG))
         return;
 
     const char *byte_data = static_cast<const char *>(data);
@@ -23,7 +23,7 @@ void log(LL level, const void *data, size_t size)
 
 void log(LL level, const std::string &message)
 {
-    if constexpr (!enableDebugLogging && (level == LL::DEBUG))
+    if (!enableDebugLogging && (level == LL::DEBUG))
         return;
 
     const auto now = std::chrono::system_clock::now();

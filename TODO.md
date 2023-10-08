@@ -1,0 +1,5 @@
+- Implement a heartbeat for Iris to see if a client is still connected
+- Change logging to not use the same thread anymore
+- Change logging to make the call to a debug log constexpr implicitly
+- Implement better way to have a single space to store Iris address and port
+- Pick consistent code style (camel case, underscores etc)

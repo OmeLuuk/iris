@@ -12,7 +12,6 @@ class IrisClient {
 public:
     IrisClient(ClientType type);
 
-    std::vector<char> createMsg(ClientType type, const char* msg);
     void sendMsg(const MessageType type, const std::vector<char>& msg);
 
 private:

@@ -21,7 +21,7 @@ Iris requires no third party libraries and can be built on any relevant Linux sy
 
 ### Prerequisites
 
-- A compatible C++ compiler (C++17 or later recommended)
+- A compatible C++ compiler (C++20 or later recommended)
 - A compatible Linux distribution
 
 ### Usage
