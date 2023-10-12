@@ -12,8 +12,3 @@
 IrisClient::IrisClient(ClientType type) : clientConnectionManager(type)
 {
 }
-
-void IrisClient::sendMsg(const MessageType type, const std::vector<char> &msgToSend)
-{
-    clientConnectionManager.sendMessage(type, msgToSend);
-}

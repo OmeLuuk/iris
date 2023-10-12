@@ -9,7 +9,7 @@ int main()
     IrisConfig::Config config("config.txt");
     int port = std::stoi(config.get("port"));
 
-    IrisServer server(port, serverConnectionManager);
+    IrisServer server(serverConnectionManager);
     server.ReactiveEventLoop();
 
     return 0;

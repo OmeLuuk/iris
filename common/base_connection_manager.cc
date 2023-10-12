@@ -9,9 +9,17 @@
 #include <unistd.h>
 #include <cstring>
 
+BaseConnectionManager::~BaseConnectionManager()
+{
+    if (connectionFd != -1)
+    {
+        close(connectionFd);
+    }
+}
+
 void BaseConnectionManager::sendMessage(MessageType type, const std::vector<char> &message)
 {
-    if (sockfd == -1)
+    if (connectionFd == -1)
     {
         log(LL::ERROR, "Not connected to any server");
         return;
@@ -34,11 +42,41 @@ void BaseConnectionManager::sendMessage(MessageType type, const std::vector<char
         log(LL::DEBUG, s);
     }
 
-    ssize_t bytesSent = send(sockfd, fullMsg.data(), fullMsg.size(), 0);
+    ssize_t bytesSent = send(connectionFd, fullMsg.data(), fullMsg.size(), 0);
     if (bytesSent != static_cast<ssize_t>(fullMsg.size()))
     {
         log(LL::ERROR, "Failed to send the complete message");
     }
+}
+
+void BaseConnectionManager::sendMessage(MessageType type, const void* data, size_t size)
+{
+    if (connectionFd == -1)
+    {
+        log(LL::ERROR, "Not connected to any server");
+        return;
+    }
+
+    uint32_t msgSizeNetworkOrder = htonl(static_cast<uint32_t>(size + 5)); // +1 for the message type byte, +4 for the message size
+    std::vector<char> fullMsg(sizeof(msgSizeNetworkOrder) + size + 1);      // +1 for message type
+
+    std::memcpy(fullMsg.data(), &msgSizeNetworkOrder, sizeof(msgSizeNetworkOrder));
+    fullMsg[sizeof(msgSizeNetworkOrder)] = static_cast<char>(type);
+    std::memcpy(fullMsg.data() + sizeof(msgSizeNetworkOrder) + 1, data, size); // +1 for the message type byte
+
+    log(LL::DEBUG, "1");
+    ssize_t bytesSent = send(connectionFd, fullMsg.data(), fullMsg.size(), 0);
+    log(LL::DEBUG, "2");
+
+    if (bytesSent != static_cast<ssize_t>(fullMsg.size()))
+    {
+        log(LL::ERROR, "Failed to send the complete message");
+    }
+}
+
+int BaseConnectionManager::getFd() const
+{
+    return connectionFd;
 }
 
 // TODO: refactor to have less code in one function

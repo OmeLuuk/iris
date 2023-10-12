@@ -12,8 +12,6 @@ class IrisClient {
 public:
     IrisClient(ClientType type);
 
-    void sendMsg(const MessageType type, const std::vector<char>& msg);
-
 private:
     ClientConnectionManager clientConnectionManager;
 };

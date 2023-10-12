@@ -15,9 +15,9 @@
 
 namespace
 {
-    const char *IRIS_IP = "127.0.0.1";
-    const int IRIS_PORT = 8080;
-    constexpr int MAX__RECONNECT_RETRIES = 10;
+    constexpr char const* IRIS_IP = "127.0.0.1";
+    constexpr int IRIS_PORT = 8080;
+    constexpr int MAX_RECONNECT_RETRIES = 10;
     constexpr int SLEEP_DURATION_MS = 100;
 }
 
@@ -33,26 +33,26 @@ ClientConnectionManager::ClientConnectionManager(const ClientType clientType)
 
 ClientConnectionManager::~ClientConnectionManager()
 {
-    if (sockfd != -1)
+    if (connectionFd != -1)
     {
-        close(sockfd);
+        close(connectionFd);
     }
 }
 
 int ClientConnectionManager::createSocket()
 {
-    int sockfd = socket(AF_INET, SOCK_STREAM, 0);
-    if (sockfd == -1)
+    int connectionFd = socket(AF_INET, SOCK_STREAM, 0);
+    if (connectionFd == -1)
     {
         log(LL::ERROR, "Error creating socket");
     }
-    return sockfd;
+    return connectionFd;
 }
 
-bool ClientConnectionManager::configureSocket(int sockfd)
+bool ClientConnectionManager::configureSocket(int connectionFd)
 {
     int flag = 1;
-    if (setsockopt(sockfd, IPPROTO_TCP, TCP_NODELAY, &flag, sizeof(int)) < 0) // Disable Nagle's algorithm
+    if (setsockopt(connectionFd, IPPROTO_TCP, TCP_NODELAY, &flag, sizeof(int)) < 0) // Disable Nagle's algorithm
     {
         log(LL::ERROR, "Error configuring socket");
         return false;
@@ -69,9 +69,9 @@ sockaddr_in ClientConnectionManager::prepareServerAddress()
     return serverAddress;
 }
 
-bool ClientConnectionManager::connectToServerAddress(int sockfd, const sockaddr_in &address)
+bool ClientConnectionManager::connectToServerAddress(int connectionFd, const sockaddr_in &address)
 {
-    if (connect(sockfd, (struct sockaddr *)&address, sizeof(address)) == -1)
+    if (connect(connectionFd, (struct sockaddr *)&address, sizeof(address)) == -1)
     {
         log(LL::ERROR, "Error connecting to server");
         return false;
@@ -81,31 +81,31 @@ bool ClientConnectionManager::connectToServerAddress(int sockfd, const sockaddr_
 
 void ClientConnectionManager::setupConnection()
 {
-    for (int attempt = 0; attempt < MAX__RECONNECT_RETRIES; ++attempt)
+    for (int attempt = 0; attempt < MAX_RECONNECT_RETRIES; ++attempt)
     {
-        sockfd = createSocket();
-        if (sockfd == -1)
+        connectionFd = createSocket();
+        if (connectionFd == -1)
         {
             log(LL::ERROR, "Attempt [" + std::to_string(attempt + 1) + "] Error creating socket");
             std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_DURATION_MS));
             continue; // skip the rest of the loop and try again
         }
 
-        if (!configureSocket(sockfd))
+        if (!configureSocket(connectionFd))
         {
             log(LL::ERROR, "Attempt [" + std::to_string(attempt + 1) + "] Error configuring socket");
-            close(sockfd);
-            sockfd = -1;
+            close(connectionFd);
+            connectionFd = -1;
             std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_DURATION_MS));
             continue;
         }
 
         sockaddr_in serverAddress = prepareServerAddress();
-        if (!connectToServerAddress(sockfd, serverAddress))
+        if (!connectToServerAddress(connectionFd, serverAddress))
         {
             log(LL::ERROR, "Attempt [" + std::to_string(attempt + 1) + "] Error connecting to server");
-            close(sockfd);
-            sockfd = -1;
+            close(connectionFd);
+            connectionFd = -1;
             std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_DURATION_MS));
             continue;
         }

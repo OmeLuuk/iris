@@ -8,7 +8,8 @@
 class Engine : public EventHandler
 {
 public:
-    Engine(int port, BaseConnectionManager &manager);
+    Engine(bool acceptConnections, BaseConnectionManager &manager);
+    Engine(BaseConnectionManager &connectionManager);
     ~Engine();
 
     void ReactiveEventLoop();
@@ -17,13 +18,12 @@ public:
 
 protected:
     virtual void onMessage(int fd, const void *data, size_t size) override;
-    virtual void onConnected(const int fd) override;
+    virtual void onConnected(const int fd, const ClientType type) override;
     virtual void onDisconnected(const int fd) override;
     virtual void EventCycle();
-    int server_fd;
-    int epoll_fd;
+    void sendMessage(const MessageType type, const std::vector<char> &msg);
+    void sendMessage(const MessageType type, const void *data, size_t size);
+    int epoll_fd = 0;
+    const bool canAcceptConnections = false;
     BaseConnectionManager &connectionManager;
-
-private:
-    static constexpr std::chrono::milliseconds defaultWaitTime = std::chrono::milliseconds(0);
 };

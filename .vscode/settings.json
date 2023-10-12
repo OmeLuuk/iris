@@ -54,6 +54,8 @@
         "stop_token": "cpp",
         "thread": "cpp",
         "iomanip": "cpp",
-        "sstream": "cpp"
+        "sstream": "cpp",
+        "set": "cpp",
+        "unordered_set": "cpp"
     }
 }
