@@ -28,7 +28,7 @@ ClientConnectionManager::ClientConnectionManager(const ClientType clientType)
 
     std::vector<char> fullMsg(1, static_cast<char>(clientType));
 
-    sendMessage(MessageType::INTRO, fullMsg);
+    sendMessage(connectionFd, MessageType::INTRO, fullMsg);
 }
 
 ClientConnectionManager::~ClientConnectionManager()
@@ -71,7 +71,7 @@ sockaddr_in ClientConnectionManager::prepareServerAddress()
 
 bool ClientConnectionManager::connectToServerAddress(int connectionFd, const sockaddr_in &address)
 {
-    if (connect(connectionFd, (struct sockaddr *)&address, sizeof(address)) == -1)
+    if (connect(connectionFd, (sockaddr *)&address, sizeof(address)) == -1)
     {
         log(LL::ERROR, "Error connecting to server");
         return false;
@@ -127,6 +127,7 @@ void ClientConnectionManager::onMessageReceived(const int server_fd, const uint8
     case MessageType::INTRO:
         break;
     case MessageType::DATA:
+        handleDataMessage(server_fd, data + 1, size - 1);
         break;
     default:
         log(LL::ERROR, "Unknown message type received!");
@@ -139,4 +140,9 @@ void ClientConnectionManager::onConnected(int server_fd)
 
 void ClientConnectionManager::onDisconnected(int server_fd)
 {
+}
+
+void ClientConnectionManager::handleDataMessage(const int server_fd, const uint8_t *data, const size_t size)
+{
+    eventHandler->onMessage(server_fd, data, size);
 }

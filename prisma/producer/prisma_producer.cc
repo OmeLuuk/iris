@@ -14,5 +14,5 @@ PrismaProducer::~PrismaProducer()
 void PrismaProducer::EventCycle()
 {
     const std::vector<char> msg = {'m', 'e', 's', 's', 'a', 'g', 'e', count++};
-    sendMessage(MessageType::DATA, msg);
+    sendMessage(connectionManager.getFd(), MessageType::DATA, msg);
 }

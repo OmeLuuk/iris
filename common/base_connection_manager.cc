@@ -17,9 +17,9 @@ BaseConnectionManager::~BaseConnectionManager()
     }
 }
 
-void BaseConnectionManager::sendMessage(MessageType type, const std::vector<char> &message)
+void BaseConnectionManager::sendMessage(int fd, MessageType type, const std::vector<char> &message)
 {
-    if (connectionFd == -1)
+    if (fd == -1)
     {
         log(LL::ERROR, "Not connected to any server");
         return;
@@ -42,16 +42,16 @@ void BaseConnectionManager::sendMessage(MessageType type, const std::vector<char
         log(LL::DEBUG, s);
     }
 
-    ssize_t bytesSent = send(connectionFd, fullMsg.data(), fullMsg.size(), 0);
+    ssize_t bytesSent = send(fd, fullMsg.data(), fullMsg.size(), 0);
     if (bytesSent != static_cast<ssize_t>(fullMsg.size()))
     {
         log(LL::ERROR, "Failed to send the complete message");
     }
 }
 
-void BaseConnectionManager::sendMessage(MessageType type, const void* data, size_t size)
+void BaseConnectionManager::sendMessage(int fd, MessageType type, const void* data, size_t size)
 {
-    if (connectionFd == -1)
+    if (fd == -1)
     {
         log(LL::ERROR, "Not connected to any server");
         return;
@@ -64,10 +64,8 @@ void BaseConnectionManager::sendMessage(MessageType type, const void* data, size
     fullMsg[sizeof(msgSizeNetworkOrder)] = static_cast<char>(type);
     std::memcpy(fullMsg.data() + sizeof(msgSizeNetworkOrder) + 1, data, size); // +1 for the message type byte
 
-    log(LL::DEBUG, "1");
-    ssize_t bytesSent = send(connectionFd, fullMsg.data(), fullMsg.size(), 0);
-    log(LL::DEBUG, "2");
-
+    ssize_t bytesSent = send(fd, fullMsg.data(), fullMsg.size(), 0);
+    
     if (bytesSent != static_cast<ssize_t>(fullMsg.size()))
     {
         log(LL::ERROR, "Failed to send the complete message");
@@ -177,5 +175,5 @@ void BaseConnectionManager::disconnect(const int client_fd, const std::string &r
     clientBuffers.erase(client_fd);
     log(LL::INFO, "Client disconnected with reason: " + reason);
 
-    eventHandler->onDisconnected(client_fd);
+    eventHandler->onDisconnectedEvent(client_fd);
 }

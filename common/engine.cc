@@ -89,14 +89,14 @@ void Engine::EventLoop(const std::chrono::milliseconds waitTime = std::chrono::m
     }
 }
 
-void Engine::sendMessage(const MessageType type, const std::vector<char> &msgToSend)
+void Engine::sendMessage(const int fd, const MessageType type, const std::vector<char> &msgToSend)
 {
-    connectionManager.sendMessage(type, msgToSend);
+    connectionManager.sendMessage(fd, type, msgToSend);
 }
 
-void Engine::sendMessage(const MessageType type, const void *data, size_t size)
+void Engine::sendMessage(const int fd, const MessageType type, const void *data, size_t size)
 {
-    connectionManager.sendMessage(type, data, size);
+    connectionManager.sendMessage(fd, type, data, size);
 }
 
 void Engine::EventCycle()
@@ -107,10 +107,8 @@ void Engine::Disconnect(int fd)
 {
 }
 
-void Engine::onMessage(int fd, const void *data, size_t size) {}
-void Engine::onConnected(const int fd, const ClientType type) {}
-
-void Engine::onDisconnected(const int fd)
+void Engine::onDisconnectedEvent(const int fd)
 {
     epoll_ctl(epoll_fd, EPOLL_CTL_DEL, fd, NULL); // we stop monitoring messages from this event bufer since it is disconnected
+    onDisconnected(fd);
 }

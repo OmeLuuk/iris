@@ -11,8 +11,8 @@ class BaseConnectionManager
 {
 public:
     ~BaseConnectionManager();
-    virtual void sendMessage(MessageType type, const std::vector<char> &message);
-    virtual void sendMessage(MessageType type, const void *data, size_t size);
+    virtual void sendMessage(const int fd, MessageType type, const std::vector<char> &message);
+    virtual void sendMessage(const int fd, MessageType type, const void *data, size_t size);
     virtual void onDataReceived(const int fd, const char *data, ssize_t bytesRead);
     virtual void setHandler(EventHandler *eventHandler);
     virtual void resetHandler(EventHandler *callingEventHandler);
