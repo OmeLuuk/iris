@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
 project(Iris)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 # Set the C++ standard
 set(CMAKE_CXX_STANDARD 20)
@@ -14,6 +14,7 @@ add_subdirectory(iris/server)
 add_subdirectory(iris/client)
 add_subdirectory(prisma/producer)
 add_subdirectory(prisma/consumer)
+add_subdirectory(iris_chat)
 
 # If you include other libraries in the future, link them here.
 # For example, for Boost.Asio:
