@@ -57,5 +57,6 @@
         "sstream": "cpp",
         "set": "cpp",
         "unordered_set": "cpp"
-    }
+    },
+    "C_Cpp.default.compilerPath": "/usr/bin/g++-11"
 }

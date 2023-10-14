@@ -13,8 +13,8 @@ public:
 
 private:
     void onMessageReceived(const int server_fd, const uint8_t *data, const size_t size) override;
-    void handleDataMessage(const int client_fd, const uint8_t *data, const size_t size);
-    
+    void handleDataMessage(const MessageType type, const int client_fd, const uint8_t *data, const size_t size);
+
     int createSocket();
     bool configureSocket(int sockfd);
     sockaddr_in prepareServerAddress();

@@ -38,7 +38,9 @@ void ServerConnectionManager::onMessageReceived(const int client_fd, const uint8
         handleIntroMessage(client_fd, data + 1, size - 1);
         break;
     case MessageType::DATA:
-        handleDataMessage(client_fd, data + 1, size - 1);
+    case MessageType::PUBLIC_MESSAGE:
+    case MessageType::SUBSCRIBE:
+        handleDataMessage(type, client_fd, data + 1, size - 1);
         break;
     default:
         log(LL::ERROR, "Unknown message type received!");
@@ -58,7 +60,7 @@ void ServerConnectionManager::handleIntroMessage(const int client_fd, const uint
     eventHandler->onConnected(client_fd, clientType);
 }
 
-void ServerConnectionManager::handleDataMessage(const int client_fd, const uint8_t *data, const size_t size)
+void ServerConnectionManager::handleDataMessage(const MessageType type, const int client_fd, const uint8_t *data, const size_t size)
 {
-    eventHandler->onMessage(client_fd, data, size);
+    eventHandler->onMessage(type, client_fd, data, size);
 }

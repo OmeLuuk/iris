@@ -20,5 +20,5 @@ private:
     void onMessageReceived(const int client_fd, const uint8_t* data, const size_t size) override;
     void handleErrorMessage(const int client_fd, const uint8_t *data, const size_t size);
     void handleIntroMessage(const int client_fd, const uint8_t* data, const size_t size);
-    void handleDataMessage(const int client_fd, const uint8_t *data, const size_t size);
+    void handleDataMessage(const MessageType type, const int client_fd, const uint8_t *data, const size_t size);
 };

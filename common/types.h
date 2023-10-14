@@ -6,7 +6,9 @@ enum MessageType
 {
     ERROR = 0,
     INTRO = 1,
-    DATA = 2
+    DATA = 2,
+    SUBSCRIBE = 3,
+    PUBLIC_MESSAGE = 4,
 };
 
 enum class ClientType
@@ -16,6 +18,7 @@ enum class ClientType
     BROADCAST_CONSUMER = 2,
     PROXY_CLIENT = 3,
     DNS_CLIENT = 4,
+    IRIS_CHAT = 5,
 };
 
 inline std::string ToString(ClientType clientType)

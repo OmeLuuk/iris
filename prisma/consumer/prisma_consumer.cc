@@ -11,7 +11,7 @@ PrismaConsumer::~PrismaConsumer()
 {
 }
 
-void PrismaConsumer::onMessage(int client_fd, const void *data, size_t size)
+void PrismaConsumer::onMessage(const MessageType type, int client_fd, const void *data, size_t size)
 {
     log(LL::INFO, data, size);
 }

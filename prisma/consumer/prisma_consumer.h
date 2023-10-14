@@ -13,5 +13,5 @@ public:
     ~PrismaConsumer();
 
 private:
-    void onMessage(int client_fd, const void *data, size_t size) override;
+    void onMessage(const MessageType type, int client_fd, const void *data, size_t size) override;
 };

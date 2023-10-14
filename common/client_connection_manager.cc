@@ -127,7 +127,7 @@ void ClientConnectionManager::onMessageReceived(const int server_fd, const uint8
     case MessageType::INTRO:
         break;
     case MessageType::DATA:
-        handleDataMessage(server_fd, data + 1, size - 1);
+        handleDataMessage(type, server_fd, data + 1, size - 1);
         break;
     default:
         log(LL::ERROR, "Unknown message type received!");
@@ -142,7 +142,7 @@ void ClientConnectionManager::onDisconnected(int server_fd)
 {
 }
 
-void ClientConnectionManager::handleDataMessage(const int server_fd, const uint8_t *data, const size_t size)
+void ClientConnectionManager::handleDataMessage(const MessageType type, const int server_fd, const uint8_t *data, const size_t size)
 {
-    eventHandler->onMessage(server_fd, data, size);
+    eventHandler->onMessage(type, server_fd, data, size);
 }
