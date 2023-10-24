@@ -33,6 +33,8 @@ inline std::string ToString(ClientType clientType)
         return "PROXY_CLIENT";
     case ClientType::DNS_CLIENT:
         return "DNS_CLIENT";
+    case ClientType::IRIS_CHAT:
+        return "IRIS_CHAT";
     }
 
     throw std::runtime_error("unknown clientType in ToString()");

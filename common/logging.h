@@ -14,22 +14,6 @@ constexpr bool enableDebugLogging = true;
 
 namespace
 {
-    template <typename Arg, typename... Args>
-    void customFormat(std::ostream &stream, const char *fmt, const Arg &arg, const Args &...args)
-    {
-        for (; *fmt != '\0'; ++fmt)
-        {
-            if (*fmt == '%' && *(++fmt) != '%')
-            {
-                stream << arg;
-                customFormat(stream, fmt + 1, args...); // Recur with one fewer argument
-                return;
-            }
-            stream << *fmt;
-        }
-        throw std::runtime_error("extra arguments provided to printf");
-    }
-
     // Terminal print for the base case
     void customFormat(std::ostream &stream, const char *fmt)
     {
@@ -40,6 +24,33 @@ namespace
                 throw std::runtime_error("invalid format string: missing arguments");
             }
             stream << *fmt;
+        }
+    }
+
+    template <typename Arg, typename... Args>
+    void customFormat(std::ostream &stream, const char *fmt, const Arg &arg, const Args &...args)
+    {
+        for (; *fmt != '\0'; ++fmt)
+        {
+            if (*fmt == '%' && *(++fmt) != '%')
+            {
+                stream << arg;
+                if constexpr (sizeof...(args) > 0)
+                {
+                    customFormat(stream, fmt + 1, args...); // Recur with one fewer argument
+                }
+                else
+                {
+                    customFormat(stream, fmt + 1);
+                }
+                return;
+            }
+            stream << *fmt;
+        }
+        // Base case: no more '%' found in the string
+        if constexpr (sizeof...(args) > 0)
+        {
+            throw std::runtime_error("extra arguments provided to printf");
         }
     }
 }

@@ -16,6 +16,7 @@ public:
 private:
     void onMessage(const MessageType type, int client_fd, const void *data, size_t size) override;
     void addSubscriber(int client_fd, const void *data, size_t size);
+    void broadcastMessage(const void *data, size_t size);
     void onConnected(const int client_fd, const ClientType type) override;
     void onDisconnected(const int fd) override;
 

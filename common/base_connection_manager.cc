@@ -82,7 +82,7 @@ void BaseConnectionManager::onDataReceived(const int fd, const char *data, ssize
 {
     if (bytes_read == 0)
     {
-        disconnect(fd, "client disconnected gracefully");
+        disconnect(fd, "client disconnected gracefully (bytes_read = 0)");
         return;
     }
     if (bytes_read == -1)
