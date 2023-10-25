@@ -34,7 +34,7 @@ void IrisChat::EventCycle()
         std::getline(std::cin, line); // get the line from the console
 
         std::string topic = "TEST TOPIC";
-        char topicSize = static_cast<char>(topic.size()); // Get size of topic
+        uint8_t topicSize = static_cast<uint8_t>(topic.size()); // Get size of topic
 
         // Use a vector to construct the message
         std::vector<char> msg;

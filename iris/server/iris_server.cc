@@ -28,7 +28,7 @@ void IrisServer::onMessage(const MessageType type, int client_fd, const void *da
     if (type == MessageType::SUBSCRIBE)
         addSubscriber(client_fd, data, size);
 
-    if (type == MessageType::PUBLIC_MESSAGE)
+    if (type == MessageType::PUBLIC_MESSAGE) 
         broadcastMessage(data, size);
 
     if (fdToClientType.at(client_fd) == ClientType::BROADCAST_PRODUCER)
