@@ -14,18 +14,20 @@ class IrisChatGUI : public QWidget
 {
     Q_OBJECT
 public:
-    IrisChatGUI(ClientConnectionManager &connectionManager);
+    IrisChatGUI(ClientConnectionManager &connectionManager, const std::string &username);
     QTextEdit *addChatTab(const QString &name);
     void removeChatTab(const QString &name);
 
 public slots:
     void sendMessage();
     void eventCycle();
-    void displayMessage(const std::string &msg);
+    void displayMessage(const std::string &topic, const std::string &sender, const std::string &msg);
 
 private:
     IrisChat irisChat;
     QTextEdit *textArea;
     QLineEdit *inputBox;
     QTabWidget *tabWidget;
+
+    const std::string& username;
 };

@@ -16,4 +16,5 @@ IrisChat provides a seamless, terminal-based chat experience, enabling one-on-on
 ### Prerequisites
 
 - A compatible C++ compiler (C++20 or later recommended)
-- Ensure the Iris server is properly set up and running.
+- Ensure the Iris server is properly set up and running
+- Have the necessary Qt libraries installed for the chat GUI

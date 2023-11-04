@@ -1,7 +1,12 @@
 #include "iris_chat_gui.h"
 
-IrisChatGUI::IrisChatGUI(ClientConnectionManager &connectionManager) : irisChat(connectionManager, [this](const std::string &s)
-                                                                                { displayMessage(s); })
+IrisChatGUI::IrisChatGUI(ClientConnectionManager &connectionManager,
+                         const std::string &username) : irisChat(
+                                                            connectionManager,
+                                                            [this](const std::string &s1, const std::string &s2, const std::string &s3)
+                                                            { displayMessage(s1, s2, s3); },
+                                                            username),
+                                                        username(username)
 {
     // Setting up GUI
     this->setWindowTitle("Iris Chat");
@@ -63,7 +68,7 @@ void IrisChatGUI::eventCycle()
     irisChat.EventCycle();
 }
 
-void IrisChatGUI::displayMessage(const std::string &msg)
+void IrisChatGUI::displayMessage(const std::string& topic, const std::string& sender, const std::string &msg)
 {
     // For now, display the message in the currently active tab
     QTextEdit *currentTextArea = static_cast<QTextEdit *>(tabWidget->currentWidget());
