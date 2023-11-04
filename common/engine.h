@@ -29,7 +29,5 @@ protected:
     int epoll_fd = 0;
     const bool canAcceptConnections = false;
     BaseConnectionManager &connectionManager;
-
-private:
     void handleMessages(int timeout);
 };

@@ -11,6 +11,7 @@ set(CMAKE_AUTOUIC ON)
 add_executable(iris_chat
     main.cc
     iris_chat.cc
+    iris_chat_gui.cc
 )
 
 # Find the necessary Qt5 modules
