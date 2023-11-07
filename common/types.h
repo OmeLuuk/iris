@@ -9,6 +9,7 @@ enum MessageType
     DATA = 2,
     SUBSCRIBE = 3,
     PUBLIC_MESSAGE = 4,
+    
 };
 
 enum class ClientType

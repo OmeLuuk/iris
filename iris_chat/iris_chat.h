@@ -11,7 +11,8 @@ public:
     IrisChat(ClientConnectionManager &handler, onMessageReceivedCallback onMessageReceived, const std::string &username);
     void onMessage(const MessageType type, int client_fd, const void *data, size_t size);
     void EventCycle() override;
-    void SendChatMessage(const std::string& message);
+    void SendChatMessage(const std::string &topic, const std::string &message);
+    void SubscribeToTopic(const std::string &topic);
 
 private:
     onMessageReceivedCallback onMessageReceived;

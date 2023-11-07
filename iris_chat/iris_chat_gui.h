@@ -9,6 +9,7 @@
 #include <QPushButton>
 #include <QTimer>
 #include <QTabWidget>
+#include <QListWidgetItem>
 
 class IrisChatGUI : public QWidget
 {
@@ -16,6 +17,7 @@ class IrisChatGUI : public QWidget
 public:
     IrisChatGUI(ClientConnectionManager &connectionManager, const std::string &username);
     QTextEdit *addChatTab(const QString &name);
+    void onUserClicked(QListWidgetItem *item);
     void removeChatTab(const QString &name);
 
 public slots:
@@ -29,5 +31,5 @@ private:
     QLineEdit *inputBox;
     QTabWidget *tabWidget;
 
-    const std::string& username;
+    const std::string &username;
 };

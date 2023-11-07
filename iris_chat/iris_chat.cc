@@ -6,8 +6,8 @@ IrisChat::IrisChat(ClientConnectionManager &handler,
                    const std::string &username)
     : Engine(false, handler), onMessageReceived(onMessageReceived), username(username)
 {
-    const std::vector<char> msg{'T', 'E', 'S', 'T', ' ', 'T', 'O', 'P', 'I', 'C'};
-    sendMessage(connectionManager.getFd(), MessageType::SUBSCRIBE, msg);
+    SubscribeToTopic(username);
+    SubscribeToTopic("General");
 }
 
 void IrisChat::onMessage(const MessageType type, int client_fd, const void *data, size_t size)
@@ -33,9 +33,8 @@ void IrisChat::EventCycle()
     handleMessages(0);
 }
 
-void IrisChat::SendChatMessage(const std::string &message)
+void IrisChat::SendChatMessage(const std::string &topic, const std::string &message)
 {
-    std::string topic = "TEST TOPIC";
     uint8_t topicSize = static_cast<uint8_t>(topic.size()); // Get size of topic
 
     // Use a vector to construct the message
@@ -48,4 +47,9 @@ void IrisChat::SendChatMessage(const std::string &message)
 
     // Send the message
     sendMessage(connectionManager.getFd(), MessageType::PUBLIC_MESSAGE, msg);
+}
+
+void IrisChat::SubscribeToTopic(const std::string &topic)
+{
+    sendMessage(connectionManager.getFd(), MessageType::SUBSCRIBE, topic);
 }

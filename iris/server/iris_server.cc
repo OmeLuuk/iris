@@ -51,7 +51,7 @@ void IrisServer::addSubscriber(int client_fd, const void *data, size_t size)
     const auto topic = static_cast<const char *>(data);
     topicSubscribers[std::string(topic, size)].insert(client_fd);
 
-    log(LL::DEBUG, "Subscribed % to topic %", std::to_string(client_fd), topic);
+    log(LL::DEBUG, "Subscribed % to topic %", std::to_string(client_fd), std::string(topic, size));
 }
 
 void IrisServer::broadcastMessage(const void *data, size_t size)

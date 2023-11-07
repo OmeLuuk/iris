@@ -1,37 +1,64 @@
 #include "iris_chat_gui.h"
 
-IrisChatGUI::IrisChatGUI(ClientConnectionManager &connectionManager,
-                         const std::string &username) : irisChat(
-                                                            connectionManager,
-                                                            [this](const std::string &s1, const std::string &s2, const std::string &s3)
-                                                            { displayMessage(s1, s2, s3); },
-                                                            username),
-                                                        username(username)
+#include <QListWidget>
+#include <QSplitter>
+
+IrisChatGUI::IrisChatGUI(ClientConnectionManager &connectionManager, const std::string &username)
+    : irisChat(
+          connectionManager, [this](const std::string &topic, const std::string &sender, const std::string &message)
+          { displayMessage(topic, sender, message); },
+          username),
+      username(username)
 {
     // Setting up GUI
     this->setWindowTitle("Iris Chat");
-    this->resize(400, 300);
+    this->resize(600, 400); // Adjusted for additional list space
 
-    QVBoxLayout *layout = new QVBoxLayout(this);
+    // Main layout
+    QHBoxLayout *mainLayout = new QHBoxLayout(this);
 
-    // Initialize the tab widget and add a General tab
-    tabWidget = new QTabWidget(this);
-    layout->addWidget(tabWidget);
-    addChatTab("General"); // Example tab
+    // Chat area setup
+    QVBoxLayout *chatLayout = new QVBoxLayout();
+    tabWidget = new QTabWidget();
+    chatLayout->addWidget(tabWidget);
+    addChatTab("General");
 
-    inputBox = new QLineEdit(this);
-    layout->addWidget(inputBox);
+    QHBoxLayout *inputLayout = new QHBoxLayout();
+    inputBox = new QLineEdit();
+    inputLayout->addWidget(inputBox);
+    QPushButton *sendButton = new QPushButton("Send");
+    inputLayout->addWidget(sendButton);
+    chatLayout->addLayout(inputLayout); // Add the input section below the chat area
 
-    QPushButton *sendButton = new QPushButton("Send", this);
-    layout->addWidget(sendButton);
+    mainLayout->addLayout(chatLayout, 3); // Add the chat layout to the main layout with width 3
 
-    // Connect the Send button to the send logic
+    QListWidget *listWidget = new QListWidget();
+    mainLayout->addWidget(listWidget, 1); // Add user list to the right of chat area with width 1
+
+    // Connect the Send button to the send
     connect(sendButton, &QPushButton::clicked, this, &IrisChatGUI::sendMessage);
+
+    // Connect the user list item click event to a handler
+    connect(listWidget, &QListWidget::itemClicked, this, &IrisChatGUI::onUserClicked);
+
+    // Set the main layout for the widget
+    this->setLayout(mainLayout);
 
     // Set up the event cycle
     QTimer *timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &IrisChatGUI::eventCycle);
     timer->start(10); // Call EventCycle every 10 milliseconds
+
+    // Set a stretch factor to make the chat area larger than the user list
+    mainLayout->setStretchFactor(tabWidget, 30);
+    mainLayout->setStretchFactor(listWidget, 1);
+
+    QListWidgetItem *item1 = new QListWidgetItem("Other");
+    QListWidgetItem *item2 = new QListWidgetItem("Luuk");
+    QListWidgetItem *item3 = new QListWidgetItem("Sven");
+    listWidget->addItem(item1);
+    listWidget->addItem(item2);
+    listWidget->addItem(item3);
 }
 
 QTextEdit *IrisChatGUI::addChatTab(const QString &name)
@@ -40,6 +67,17 @@ QTextEdit *IrisChatGUI::addChatTab(const QString &name)
     chatArea->setReadOnly(true);
     tabWidget->addTab(chatArea, name);
     return chatArea;
+}
+
+void IrisChatGUI::onUserClicked(QListWidgetItem *item)
+{
+    QString userName = item->text();
+
+    for (int i = 0; i < tabWidget->count(); ++i)
+        if (tabWidget->tabText(i) == userName)
+            return;
+    
+    addChatTab(userName);
 }
 
 void IrisChatGUI::removeChatTab(const QString &name)
@@ -59,7 +97,9 @@ void IrisChatGUI::removeChatTab(const QString &name)
 void IrisChatGUI::sendMessage()
 {
     QString line = inputBox->text();
-    irisChat.SendChatMessage(line.toStdString());
+    QString currentTabName = tabWidget->tabText(tabWidget->currentIndex());
+
+    irisChat.SendChatMessage(currentTabName.toStdString(), line.toStdString());
     inputBox->clear();
 }
 
@@ -68,12 +108,28 @@ void IrisChatGUI::eventCycle()
     irisChat.EventCycle();
 }
 
-void IrisChatGUI::displayMessage(const std::string& topic, const std::string& sender, const std::string &msg)
+void IrisChatGUI::displayMessage(const std::string &topic, const std::string &sender, const std::string &msg)
 {
-    // For now, display the message in the currently active tab
-    QTextEdit *currentTextArea = static_cast<QTextEdit *>(tabWidget->currentWidget());
-    if (currentTextArea)
+    const QString tabName = topic == username ? QString::fromStdString(sender) : QString::fromStdString(topic);
+
+    QTextEdit *textAreaForTab = nullptr;
+
+    // Loop through all tabs to find the appropriate tab
+    for (int i = 0; i < tabWidget->count(); ++i)
     {
-        currentTextArea->append(QString::fromStdString(msg));
+        if (tabWidget->tabText(i) == tabName)
+        {
+            textAreaForTab = qobject_cast<QTextEdit *>(tabWidget->widget(i));
+            break;
+        }
     }
+
+    // Check if the tab was found and create it otherwise
+    if (!textAreaForTab)
+    {
+        textAreaForTab = addChatTab(tabName);
+    }
+
+    // Append the message to the found tab's text area
+    textAreaForTab->append(QString::fromStdString(msg));
 }
