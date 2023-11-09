@@ -40,6 +40,7 @@ void ServerConnectionManager::onMessageReceived(const int client_fd, const uint8
     case MessageType::DATA:
     case MessageType::PUBLIC_MESSAGE:
     case MessageType::SUBSCRIBE:
+    case MessageType::USER_UPDATE:
         handleDataMessage(type, client_fd, data + 1, size - 1);
         break;
     default:

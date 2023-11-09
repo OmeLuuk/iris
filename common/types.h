@@ -9,7 +9,7 @@ enum MessageType
     DATA = 2,
     SUBSCRIBE = 3,
     PUBLIC_MESSAGE = 4,
-    
+    USER_UPDATE = 5, // [clienttype - 1 byte][UserStatus - 1 byte][username length L - 1 byte][username - L bytes]
 };
 
 enum class ClientType
@@ -20,6 +20,12 @@ enum class ClientType
     PROXY_CLIENT = 3,
     DNS_CLIENT = 4,
     IRIS_CHAT = 5,
+};
+
+enum class UserStatus
+{
+    ONLINE = 0,
+    OFFLINE = 1,
 };
 
 inline std::string ToString(ClientType clientType)

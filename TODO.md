@@ -6,3 +6,4 @@
 - In base_connection_manager, we copy the message to send in sendMessage twice to add message size and copy the data. We can turn this into a zero copy by sending two messages: first one with the size and type and then the message itself. TCP stream ensures it can be read as a single message. To not get two calls to send() and get 2 context switches to kernel space, we can use an io_uring instance.
 - Clients can currently crash iris_server pretty easily by sending nonsense; the server should instead disconnect such clients and continue its own business.
 - Make subscribing app_type dependent. Now if two different apps are developed that use this functionality, they can receive each other's messages even if they have nothing to do with each other
+- Create methods for all the messagetypes so manual parsing of bytes wont be necessary in end-apps

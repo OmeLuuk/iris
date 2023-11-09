@@ -7,7 +7,8 @@ IrisChatGUI::IrisChatGUI(ClientConnectionManager &connectionManager, const std::
     : irisChat(
           connectionManager, [this](const std::string &topic, const std::string &sender, const std::string &message)
           { displayMessage(topic, sender, message); },
-          username),
+          username,
+          [this] (const std::string &username, const UserStatus userStatus) { changeUserList(username, userStatus);}),
       username(username)
 {
     // Setting up GUI
@@ -32,7 +33,7 @@ IrisChatGUI::IrisChatGUI(ClientConnectionManager &connectionManager, const std::
 
     mainLayout->addLayout(chatLayout, 3); // Add the chat layout to the main layout with width 3
 
-    QListWidget *listWidget = new QListWidget();
+    listWidget = new QListWidget();
     mainLayout->addWidget(listWidget, 1); // Add user list to the right of chat area with width 1
 
     // Connect the Send button to the send
@@ -49,16 +50,8 @@ IrisChatGUI::IrisChatGUI(ClientConnectionManager &connectionManager, const std::
     connect(timer, &QTimer::timeout, this, &IrisChatGUI::eventCycle);
     timer->start(10); // Call EventCycle every 10 milliseconds
 
-    // Set a stretch factor to make the chat area larger than the user list
-    mainLayout->setStretchFactor(tabWidget, 30);
-    mainLayout->setStretchFactor(listWidget, 1);
-
-    QListWidgetItem *item1 = new QListWidgetItem("Other");
-    QListWidgetItem *item2 = new QListWidgetItem("Luuk");
-    QListWidgetItem *item3 = new QListWidgetItem("Sven");
-    listWidget->addItem(item1);
-    listWidget->addItem(item2);
-    listWidget->addItem(item3);
+    QListWidgetItem *item = new QListWidgetItem("Other");
+    listWidget->addItem(item);
 }
 
 QTextEdit *IrisChatGUI::addChatTab(const QString &name)
@@ -132,4 +125,17 @@ void IrisChatGUI::displayMessage(const std::string &topic, const std::string &se
 
     // Append the message to the found tab's text area
     textAreaForTab->append(QString::fromStdString(msg));
+}
+
+void IrisChatGUI::changeUserList(const std::string &username, const UserStatus userStatus)
+{
+    if (username == this->username)
+        return;
+
+    for (int i = 0; i < listWidget->count(); ++i)
+        if (listWidget->item(i)->text() == QString::fromStdString(username))
+            return;
+
+    QListWidgetItem *item = new QListWidgetItem(QString::fromStdString(username));
+    listWidget->addItem(item);
 }

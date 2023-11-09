@@ -25,11 +25,18 @@ void IrisServer::onMessage(const MessageType type, int client_fd, const void *da
     log(LL::DEBUG, "Received a message:");
     log(LL::DEBUG, data, size);
 
-    if (type == MessageType::SUBSCRIBE)
+    switch (type)
+    {
+    case MessageType::SUBSCRIBE:
         addSubscriber(client_fd, data, size);
-
-    if (type == MessageType::PUBLIC_MESSAGE) 
+        break;
+    case MessageType::PUBLIC_MESSAGE:
         broadcastMessage(data, size);
+        break;
+    case MessageType::USER_UPDATE:
+        handleUserUpdate(data, size);
+        break;
+    }
 
     if (fdToClientType.at(client_fd) == ClientType::BROADCAST_PRODUCER)
     {
@@ -76,10 +83,6 @@ void IrisServer::broadcastMessage(const void *data, size_t size)
     auto subscribers = topicSubscribers.find(topic);
     if (subscribers != topicSubscribers.end())
     {
-        // Send the remaining message to all subscribers.
-        // const char *messageStart = topicStart + topicLength;
-        // size_t messageSize = size - 1 - topicLength;
-
         for (int fd : subscribers->second)
         {
             sendMessage(fd, MessageType::PUBLIC_MESSAGE, data, size);
@@ -87,9 +90,23 @@ void IrisServer::broadcastMessage(const void *data, size_t size)
     }
 }
 
+void IrisServer::handleUserUpdate(const void *data, size_t size)
+{
+    const unsigned char *charData = static_cast<const unsigned char *>(data);
+    const ClientType type = static_cast<ClientType>(charData[0]);
+    int offset = 1;
+    const UserStatus status = static_cast<UserStatus>(charData[offset++]);
+    const uint8_t length = static_cast<uint8_t>(charData[offset++]);
+    const std::string username(charData + offset, charData + offset + length);
+
+    for (int fd : clientTypeToFds[type])
+        sendMessage(fd, MessageType::USER_UPDATE, data, size);
+}
+
 void IrisServer::onConnected(const int client_fd, const ClientType type)
 {
     fdToClientType.insert({client_fd, type});
+    clientTypeToFds[type].insert(client_fd);
 
     if (type == ClientType::BROADCAST_CONSUMER)
         broadcastConsumers.insert(client_fd);
@@ -99,6 +116,6 @@ void IrisServer::onDisconnected(const int fd)
 {
     if (fdToClientType.at(fd) == ClientType::BROADCAST_CONSUMER)
         broadcastConsumers.erase(fd);
-    
+
     fdToClientType.erase(fd);
 }

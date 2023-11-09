@@ -128,6 +128,7 @@ void ClientConnectionManager::onMessageReceived(const int server_fd, const uint8
         break;
     case MessageType::DATA:
     case MessageType::PUBLIC_MESSAGE:
+    case MessageType::USER_UPDATE:
         handleDataMessage(type, server_fd, data + 1, size - 1);
         break;
     default:
