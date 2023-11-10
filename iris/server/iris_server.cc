@@ -11,6 +11,19 @@
 #include <cstring>
 #include <vector>
 
+namespace
+{
+    std::string createUserUpdate(const UserStatus userStatus, const std::string &username)
+    {
+        std::string updateMessage = "";
+        updateMessage += static_cast<char>(ClientType::IRIS_CHAT);
+        updateMessage += static_cast<char>(userStatus);
+        updateMessage += static_cast<char>(username.size());
+        updateMessage += username;
+        return updateMessage;
+    }
+}
+
 IrisServer::IrisServer(ServerConnectionManager &handler)
     : Engine(true, handler)
 {
@@ -34,7 +47,7 @@ void IrisServer::onMessage(const MessageType type, int client_fd, const void *da
         broadcastMessage(data, size);
         break;
     case MessageType::USER_UPDATE:
-        handleUserUpdate(data, size);
+        handleUserUpdate(client_fd, data, size);
         break;
     }
 
@@ -90,7 +103,7 @@ void IrisServer::broadcastMessage(const void *data, size_t size)
     }
 }
 
-void IrisServer::handleUserUpdate(const void *data, size_t size)
+void IrisServer::handleUserUpdate(const int client_fd, const void *data, size_t size)
 {
     const unsigned char *charData = static_cast<const unsigned char *>(data);
     const ClientType type = static_cast<ClientType>(charData[0]);
@@ -99,7 +112,15 @@ void IrisServer::handleUserUpdate(const void *data, size_t size)
     const uint8_t length = static_cast<uint8_t>(charData[offset++]);
     const std::string username(charData + offset, charData + offset + length);
 
-    for (int fd : clientTypeToFds[type])
+    for (const auto [_, username] : fdToIrisChatClient)
+    {
+        const std::string update = createUserUpdate(UserStatus::ONLINE, username);
+        sendMessage(client_fd, MessageType::USER_UPDATE, update);
+    }
+
+    fdToIrisChatClient.insert({client_fd, username});
+
+    for (const int fd : clientTypeToFds[type])
         sendMessage(fd, MessageType::USER_UPDATE, data, size);
 }
 
@@ -117,5 +138,9 @@ void IrisServer::onDisconnected(const int fd)
     if (fdToClientType.at(fd) == ClientType::BROADCAST_CONSUMER)
         broadcastConsumers.erase(fd);
 
+    clientTypeToFds[fdToClientType[fd]].erase(fd);
     fdToClientType.erase(fd);
+    fdToIrisChatClient.erase(fd);
+    for (auto [_, subscribers] : topicSubscribers)
+        subscribers.erase(fd);
 }

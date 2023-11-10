@@ -3,6 +3,27 @@
 #include <QListWidget>
 #include <QSplitter>
 
+#include <chrono>
+#include <iomanip>
+#include <sstream>
+#include <ctime>
+
+namespace
+{
+    std::string getCurrentTime()
+    {
+        auto now = std::chrono::system_clock::now();
+        std::time_t now_time = std::chrono::system_clock::to_time_t(now);
+
+        std::tm *local_tm = std::localtime(&now_time);
+
+        std::ostringstream timeStream;
+        timeStream << std::put_time(local_tm, "%H:%M");
+
+        return timeStream.str();
+    }
+}
+
 IrisChatGUI::IrisChatGUI(ClientConnectionManager &connectionManager, const std::string &username)
     : irisChat(
           connectionManager, [this](const std::string &topic, const std::string &sender, const std::string &message)
@@ -94,6 +115,10 @@ void IrisChatGUI::sendMessage()
 
     irisChat.SendChatMessage(currentTabName.toStdString(), line.toStdString());
     inputBox->clear();
+
+    QTextEdit *currentTextArea = static_cast<QTextEdit *>(tabWidget->currentWidget());
+    if (currentTextArea)
+        currentTextArea->append(QString::fromStdString(getCurrentTime()) + " " + QString::fromStdString(username) + ": " + line);
 }
 
 void IrisChatGUI::eventCycle()
@@ -103,6 +128,9 @@ void IrisChatGUI::eventCycle()
 
 void IrisChatGUI::displayMessage(const std::string &topic, const std::string &sender, const std::string &msg)
 {
+    if (sender == username)
+        return;
+
     const QString tabName = topic == username ? QString::fromStdString(sender) : QString::fromStdString(topic);
 
     QTextEdit *textAreaForTab = nullptr;
@@ -124,7 +152,7 @@ void IrisChatGUI::displayMessage(const std::string &topic, const std::string &se
     }
 
     // Append the message to the found tab's text area
-    textAreaForTab->append(QString::fromStdString(msg));
+    textAreaForTab->append(QString::fromStdString(getCurrentTime() + " " + sender + ": " + msg));
 }
 
 void IrisChatGUI::changeUserList(const std::string &username, const UserStatus userStatus)
