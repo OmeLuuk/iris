@@ -6,6 +6,7 @@ add_library(common STATIC
     base_connection_manager.cc
     server_connection_manager.cc
     client_connection_manager.cc
+    types.cc
 )
 
 # Ensure the headers can be found

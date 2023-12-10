@@ -31,31 +31,19 @@ void IrisChat::onMessage(const MessageType type, int client_fd, const void *data
 {
     if (type == MessageType::PUBLIC_MESSAGE)
     {
-        const char *dataAsChars = static_cast<const char *>(data);
-        log(LL::INFO, data, size);
-
-        const uint8_t topicSize = static_cast<const uint8_t *>(data)[0];
-        const std::string topic(dataAsChars + 1, dataAsChars + 1 + topicSize);
-
-        const uint8_t senderSize = static_cast<const uint8_t *>(data)[topicSize + 1];
-        const char *senderStart = dataAsChars + 1 + topicSize + 1;
-        const std::string sender(senderStart, senderStart + senderSize);
-
-        const char *msgStart = senderStart + senderSize;
-        const std::string msg(msgStart, dataAsChars + size - msgStart);
-
-        onMessageReceived(topic, sender, msg);
+        PublicMessage message(static_cast<const uint8_t *>(data), size);
+        onMessageReceived(message);
     }
     else if (type == MessageType::USER_UPDATE)
     {
-        const unsigned char *charData = static_cast<const unsigned char *>(data);
-        const ClientType type = static_cast<ClientType>(charData[0]);
-        int offset = 1;
-        const UserStatus status = static_cast<UserStatus>(charData[offset++]);
-        const uint8_t length = static_cast<uint8_t>(charData[offset++]);
-        const std::string username(charData + offset, charData + offset + length);
-        onUserStatusChanged(username, status);
+        UserUpdate userUpdate(static_cast<const uint8_t *>(data), size);
+        onUserStatusChanged(userUpdate);
     }
+}
+
+void IrisChat::handleMessage(const PublicMessage &message)
+{
+    onMessageReceived(message);
 }
 
 void IrisChat::EventCycle()

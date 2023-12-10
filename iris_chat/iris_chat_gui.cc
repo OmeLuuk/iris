@@ -26,10 +26,11 @@ namespace
 
 IrisChatGUI::IrisChatGUI(ClientConnectionManager &connectionManager, const std::string &username)
     : irisChat(
-          connectionManager, [this](const std::string &topic, const std::string &sender, const std::string &message)
-          { displayMessage(topic, sender, message); },
+          connectionManager, [this](const PublicMessage &message)
+          { displayMessage(message); },
           username,
-          [this] (const std::string &username, const UserStatus userStatus) { changeUserList(username, userStatus);}),
+          [this](const UserUpdate &userUpdate)
+          { changeUserList(userUpdate); }),
       username(username)
 {
     // Setting up GUI
@@ -126,12 +127,12 @@ void IrisChatGUI::eventCycle()
     irisChat.EventCycle();
 }
 
-void IrisChatGUI::displayMessage(const std::string &topic, const std::string &sender, const std::string &msg)
+void IrisChatGUI::displayMessage(const PublicMessage &message)
 {
-    if (sender == username)
+    if (message.sender == username)
         return;
 
-    const QString tabName = topic == username ? QString::fromStdString(sender) : QString::fromStdString(topic);
+    const QString tabName = message.topic == username ? QString::fromStdString(message.sender) : QString::fromStdString(message.topic);
 
     QTextEdit *textAreaForTab = nullptr;
 
@@ -152,18 +153,18 @@ void IrisChatGUI::displayMessage(const std::string &topic, const std::string &se
     }
 
     // Append the message to the found tab's text area
-    textAreaForTab->append(QString::fromStdString(getCurrentTime() + " " + sender + ": " + msg));
+    textAreaForTab->append(QString::fromStdString(getCurrentTime() + " " + message.sender + ": " + message.content));
 }
 
-void IrisChatGUI::changeUserList(const std::string &username, const UserStatus userStatus)
+void IrisChatGUI::changeUserList(const UserUpdate &userUpdate) // userStatus field not used?
 {
-    if (username == this->username)
+    if (userUpdate.username == this->username)
         return;
 
     for (int i = 0; i < listWidget->count(); ++i)
-        if (listWidget->item(i)->text() == QString::fromStdString(username))
+        if (listWidget->item(i)->text() == QString::fromStdString(userUpdate.username))
             return;
 
-    QListWidgetItem *item = new QListWidgetItem(QString::fromStdString(username));
+    QListWidgetItem *item = new QListWidgetItem(QString::fromStdString(userUpdate.username));
     listWidget->addItem(item);
 }

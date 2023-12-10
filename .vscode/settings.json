@@ -60,7 +60,8 @@
         "condition_variable": "cpp",
         "list": "cpp",
         "mutex": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "cassert": "cpp"
     },
     "C_Cpp.default.compilerPath": "/usr/bin/g++-11"
 }

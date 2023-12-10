@@ -23,8 +23,8 @@ public:
 public slots:
     void sendMessage();
     void eventCycle();
-    void displayMessage(const std::string &topic, const std::string &sender, const std::string &msg);
-    void changeUserList(const std::string &username, const UserStatus userStatus);
+    void displayMessage(const PublicMessage &message);
+    void changeUserList(const UserUpdate &update);
 
 private:
     IrisChat irisChat;
