@@ -52,6 +52,11 @@ public:
         return {};
     }
 
+    std::string toString() const
+    {
+        return "PublicMessage";
+    }
+
     std::string sender;
     std::string topic;
     std::string content;
@@ -68,21 +73,63 @@ public:
         const unsigned char *charData = static_cast<const unsigned char *>(data);
         const ClientType type = static_cast<ClientType>(charData[0]);
         int offset = 1;
-        const UserStatus status = static_cast<UserStatus>(charData[offset++]);
+        userStatus = static_cast<UserStatus>(charData[offset++]);
         const uint8_t length = static_cast<uint8_t>(charData[offset++]);
-        const std::string username(charData + offset, charData + offset + length);
+        username = std::string(charData + offset, charData + offset + length);
+    }
+
+    std::string toString() const
+    {
+        return "UserUpdate";
     }
 
     std::string username;
     UserStatus userStatus;
 };
 
+class SubscribeMessage
+{
+public:
+    SubscribeMessage(const std::string &topic) : topic(topic) {}
+
+    SubscribeMessage(const uint8_t *data, size_t size)
+    {
+        const auto dataChars = reinterpret_cast<const char *>(data);
+        topic = std::string(dataChars, size);
+    }
+
+    std::string toString() const
+    {
+        return "SubscribeMessage";
+    }
+
+    std::string topic;
+};
+
 class ErrorMessage
 {
+public:
+    std::string toString() const
+    {
+        return "ErrorMessage";
+    }
 };
 
 class IntroMessage
 {
+public:
+    IntroMessage(const ClientType clientType) : clientType(clientType) {}
+    IntroMessage(const uint8_t *data, size_t size)
+    {
+        clientType = static_cast<ClientType>(data[0]);
+    }
+
+    std::string toString() const
+    {
+        return "IntroMessage";
+    }
+
+    ClientType clientType;
 };
 
 enum MessageType
@@ -95,7 +142,7 @@ enum MessageType
     USER_UPDATE = 5, // [clienttype - 1 byte][UserStatus - 1 byte][username length L - 1 byte][username - L bytes]
 };
 
-using MessageVariant = std::variant<PublicMessage, ErrorMessage, IntroMessage>;
+using MessageVariant = std::variant<PublicMessage, UserUpdate, SubscribeMessage, ErrorMessage, IntroMessage>;
 
 MessageVariant deserialize(const uint8_t *data, size_t size);
 

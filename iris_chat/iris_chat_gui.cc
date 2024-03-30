@@ -91,7 +91,7 @@ void IrisChatGUI::onUserClicked(QListWidgetItem *item)
     for (int i = 0; i < tabWidget->count(); ++i)
         if (tabWidget->tabText(i) == userName)
             return;
-    
+
     addChatTab(userName);
 }
 

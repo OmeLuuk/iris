@@ -24,7 +24,7 @@ void BaseConnectionManager::sendMessage(int fd, MessageType type, const std::vec
         log(LL::ERROR, "Not connected to any server");
         return;
     }
-
+    
     uint32_t msgSizeNetworkOrder = htonl(static_cast<uint32_t>(message.size() + 5)); // +1 for the message type byte, +4 for the message size
     std::vector<char> fullMsg(sizeof(msgSizeNetworkOrder) + message.size() + 1);     // +1 for message type
 

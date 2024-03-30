@@ -73,8 +73,9 @@ void log(LL level, const char *fmt, const Args &...args)
 
     const auto now = std::chrono::system_clock::now();
     const auto now_time_t = std::chrono::system_clock::to_time_t(now);
-    const auto ns = std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch()) % 1000000000;
-    char timestamp[15];
+    // Ensure microseconds are always 6 digits
+    const auto us = std::chrono::duration_cast<std::chrono::microseconds>(now.time_since_epoch()) % 1000000;
+    char timestamp[25];
     std::strftime(timestamp, sizeof(timestamp), "%H:%M:%S", std::localtime(&now_time_t));
 
     const char *colorReset = "\033[0m";
@@ -98,8 +99,7 @@ void log(LL level, const char *fmt, const Args &...args)
         break;
     }
 
-    // Print the log message directly to the output stream
-    stream << "[" << timestamp << "." << std::setw(9) << std::setfill('0') << ns.count()
+    stream << "[" << timestamp << "." << std::setw(6) << std::setfill('0') << us.count()
            << "] [" << colorCode << levelStr << colorReset << "] ";
     customFormat(stream, fmt, args...);
     stream << std::endl;

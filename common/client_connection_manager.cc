@@ -119,6 +119,12 @@ void ClientConnectionManager::setupConnection()
 
 void ClientConnectionManager::onMessageReceived(const int server_fd, const uint8_t *data, const size_t size)
 {
+    MessageVariant message = deserialize(data, size);
+    eventHandler->onNewMessage(message);
+
+    return;
+
+    // old code
     MessageType type = static_cast<MessageType>(data[0]);
     switch (type)
     {

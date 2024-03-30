@@ -27,23 +27,14 @@ IrisChat::IrisChat(ClientConnectionManager &handler,
     sendMessage(connectionManager.getFd(), MessageType::USER_UPDATE, onlineStatusMessage);
 }
 
-void IrisChat::onMessage(const MessageType type, int client_fd, const void *data, size_t size)
-{
-    if (type == MessageType::PUBLIC_MESSAGE)
-    {
-        PublicMessage message(static_cast<const uint8_t *>(data), size);
-        onMessageReceived(message);
-    }
-    else if (type == MessageType::USER_UPDATE)
-    {
-        UserUpdate userUpdate(static_cast<const uint8_t *>(data), size);
-        onUserStatusChanged(userUpdate);
-    }
-}
-
 void IrisChat::handleMessage(const PublicMessage &message)
 {
     onMessageReceived(message);
+}
+
+void IrisChat::handleMessage(const UserUpdate &message)
+{
+    onUserStatusChanged(message);
 }
 
 void IrisChat::EventCycle()

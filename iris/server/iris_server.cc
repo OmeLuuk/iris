@@ -106,6 +106,7 @@ void IrisServer::broadcastMessage(const void *data, size_t size)
 void IrisServer::handleUserUpdate(const int client_fd, const void *data, size_t size)
 {
     const unsigned char *charData = static_cast<const unsigned char *>(data);
+
     const ClientType type = static_cast<ClientType>(charData[0]);
     int offset = 1;
     const UserStatus status = static_cast<UserStatus>(charData[offset++]);

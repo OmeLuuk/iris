@@ -10,8 +10,8 @@ class IrisChat : public Engine
 {
 public:
     IrisChat(ClientConnectionManager &handler, OnMessageReceivedCallback onMessageReceived, const std::string &username, OnUserStatusUpdateCallback onUserStatusChanged);
-    void onMessage(const MessageType type, int client_fd, const void *data, size_t size);
-    void handleMessage(const PublicMessage &message);
+    void handleMessage(const PublicMessage &message) override;
+    void handleMessage(const UserUpdate &message) override;
     void EventCycle() override;
     void SendChatMessage(const std::string &topic, const std::string &message);
     void SubscribeToTopic(const std::string &topic);
