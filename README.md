@@ -17,10 +17,12 @@ The repository consolidates common code into a universal directory, streamlining
 
 ### Dependencies
 To build and run, install the following:
-```sudo apt-get update```
-```sudo apt install cmake```
-```sudo apt-get install qtbase5-dev```
-```sudo apt-get install qtwayland5```
+```
+sudo apt-get update
+sudo apt install cmake
+sudo apt-get install qtbase5-dev
+sudo apt-get install qtwayland5
+```
 
 Upon getting the error
 ```
