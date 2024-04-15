@@ -15,6 +15,22 @@ The repository consolidates common code into a universal directory, streamlining
 - **Iris**: A low latency, high-performance messaging server.
 - **Prisma**: A broadcast messaging system leveraging Iris and TCP streams.
 
+### Dependencies
+To build and run, install the following:
+```sudo apt-get update```
+```sudo apt install cmake```
+```sudo apt-get install qtbase5-dev```
+```sudo apt-get install qtwayland5```
+
+Upon getting the error
+```
+~/dev/iris/build$ ./bin/iris_chat Luuk
+QSocketNotifier: Can only be used with threads started with QThread
+./bin/iris_chat: symbol lookup error: /snap/core20/current/lib/x86_64-linux-gnu/libpthread.so.0: undefined symbol: __libc_pthread_init, version GLIBC_PRIVATE
+```
+unset your path variable like so
+```unset GTK_PATH```
+
 ## Common Utilities
 
 ### Customizable Logging System
