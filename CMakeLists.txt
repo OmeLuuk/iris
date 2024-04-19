@@ -12,8 +12,6 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 add_subdirectory(common)
 add_subdirectory(iris/server)
 add_subdirectory(iris/client)
-add_subdirectory(prisma/producer)
-add_subdirectory(prisma/consumer)
 add_subdirectory(iris_chat)
 
 # If you include other libraries in the future, link them here.
