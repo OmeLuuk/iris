@@ -27,12 +27,12 @@ IrisChat::IrisChat(ClientConnectionManager &handler,
     sendMessage(connectionManager.getFd(), MessageType::USER_UPDATE, onlineStatusMessage);
 }
 
-void IrisChat::handleMessage(const PublicMessage &message)
+void IrisChat::handleMessage(const PublicMessage &message, const int fd)
 {
     onMessageReceived(message);
 }
 
-void IrisChat::handleMessage(const UserUpdate &message)
+void IrisChat::handleMessage(const UserUpdate &message, const int fd)
 {
     onUserStatusChanged(message);
 }

@@ -41,94 +41,82 @@ void IrisServer::onMessage(const MessageType type, int client_fd, const void *da
     switch (type)
     {
     case MessageType::SUBSCRIBE:
-        addSubscriber(client_fd, data, size);
+        //addSubscriber(client_fd, data, size);
         break;
     case MessageType::PUBLIC_MESSAGE:
-        broadcastMessage(data, size);
+        // broadcastMessage(data, size);
         break;
     case MessageType::USER_UPDATE:
-        handleUserUpdate(client_fd, data, size);
+        // handleUserUpdate(client_fd, data, size);
         break;
     }
 
-    if (fdToClientType.at(client_fd) == ClientType::BROADCAST_PRODUCER)
-    {
-        for (int fd : broadcastConsumers)
-        {
-            sendMessage(fd, MessageType::DATA, data, size);
-        }
-    }
+    // if (fdToClientType.at(client_fd) == ClientType::BROADCAST_PRODUCER)
+    // {
+    //     for (int fd : broadcastConsumers)
+    //     {
+    //         sendMessage(fd, MessageType::DATA, data, size);
+    //     }
+    // }
 }
 
-void IrisServer::addSubscriber(int client_fd, const void *data, size_t size)
+void IrisServer::handleMessage(const SubscribeMessage& message, const int fd)
 {
-    if (size > 255)
-    {
-        log(LL::ERROR, "Topic size exceeds 255 bytes. Ignoring subscription request.");
-        return;
-    }
-
-    const auto topic = static_cast<const char *>(data);
-    topicSubscribers[std::string(topic, size)].insert(client_fd);
-
-    log(LL::DEBUG, "Subscribed % to topic %", std::to_string(client_fd), std::string(topic, size));
+    topicSubscribers[message.topic].insert(fd);
+    log(LL::DEBUG, "Subscribed " + std::to_string(fd) + " to topic: " + message.topic);
 }
 
-void IrisServer::broadcastMessage(const void *data, size_t size)
+void IrisServer::handleMessage(const PublicMessage& message, const int fd)
 {
-    if (size < 1)
-    {
-        log(LL::ERROR, "Received an empty message; ignoring");
-        return;
-    }
-
-    uint8_t topicLength = *(static_cast<const uint8_t *>(data));
-
-    if (topicLength >= size)
-    {
-        log(LL::ERROR, "Topic length cannot be longer than the message size");
-        return;
-    }
-
-    const char *topicStart = static_cast<const char *>(data) + 1;
-    std::string topic(topicStart, topicLength);
-
-    auto subscribers = topicSubscribers.find(topic);
+    auto subscribers = topicSubscribers.find(message.topic);
     if (subscribers != topicSubscribers.end())
     {
         for (int fd : subscribers->second)
         {
-            sendMessage(fd, MessageType::PUBLIC_MESSAGE, data, size);
+            uint8_t topicSize = static_cast<uint8_t>(message.topic.size()); // Get size of topic
+
+            // Use a vector to construct the message
+            std::vector<char> msg;
+            msg.push_back(topicSize);                                // append the topic size
+            msg.insert(msg.end(), message.topic.begin(), message.topic.end()); // append the topic
+            msg.push_back(static_cast<uint8_t>(message.sender.size()));      // append username length
+            msg.insert(msg.end(), message.sender.begin(), message.sender.end()); // append username
+            msg.insert(msg.end(), message.content.begin(), message.content.end());   // append the input line
+
+            sendMessage(fd, MessageType::PUBLIC_MESSAGE, msg);
         }
     }
 }
 
-void IrisServer::handleUserUpdate(const int client_fd, const void *data, size_t size)
+void IrisServer::handleMessage(const UserUpdate &message, const int fd)
 {
-    const unsigned char *charData = static_cast<const unsigned char *>(data);
-
-    const ClientType type = static_cast<ClientType>(charData[0]);
-    int offset = 1;
-    const UserStatus status = static_cast<UserStatus>(charData[offset++]);
-    const uint8_t length = static_cast<uint8_t>(charData[offset++]);
-    const std::string username(charData + offset, charData + offset + length);
-
     for (const auto [_, username] : fdToIrisChatClient)
     {
         const std::string update = createUserUpdate(UserStatus::ONLINE, username);
-        sendMessage(client_fd, MessageType::USER_UPDATE, update);
+        
+        sendMessage(fd, MessageType::USER_UPDATE, update);
     }
 
-    fdToIrisChatClient.insert({client_fd, username});
+    fdToIrisChatClient.insert({fd, message.username});
 
-    for (const int fd : clientTypeToFds[type])
-        sendMessage(fd, MessageType::USER_UPDATE, data, size);
+    for (const int fd : clientTypeToFds[message.type])
+    {
+        std::string updateMessage = "";
+        updateMessage += static_cast<char>(message.type);
+        updateMessage += static_cast<char>(message.userStatus);
+        updateMessage += static_cast<char>(message.username.size());
+        updateMessage += message.username;
+        
+        sendMessage(fd, MessageType::USER_UPDATE, updateMessage);
+    }
 }
 
 void IrisServer::onConnected(const int client_fd, const ClientType type)
 {
     fdToClientType.insert({client_fd, type});
     clientTypeToFds[type].insert(client_fd);
+
+    log(LL::DEBUG, "A client connected with fd " + std::to_string(client_fd) + ".");
 
     if (type == ClientType::BROADCAST_CONSUMER)
         broadcastConsumers.insert(client_fd);

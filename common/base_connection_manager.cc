@@ -45,7 +45,7 @@ void BaseConnectionManager::sendMessage(int fd, MessageType type, const std::vec
     ssize_t bytesSent = send(fd, fullMsg.data(), fullMsg.size(), 0);
     if (bytesSent != static_cast<ssize_t>(fullMsg.size()))
     {
-        log(LL::ERROR, "Failed to send the complete message");
+        log(LL::ERROR, "Failed to send complete message, sent " + std::to_string(bytesSent) + " of " + std::to_string(fullMsg.size()));
     }
 }
 
@@ -63,12 +63,15 @@ void BaseConnectionManager::sendMessage(int fd, MessageType type, const void* da
     std::memcpy(fullMsg.data(), &msgSizeNetworkOrder, sizeof(msgSizeNetworkOrder));
     fullMsg[sizeof(msgSizeNetworkOrder)] = static_cast<char>(type);
     std::memcpy(fullMsg.data() + sizeof(msgSizeNetworkOrder) + 1, data, size); // +1 for the message type byte
-
+log(LL::DEBUG, "fd X: " + std::to_string(fd));
     ssize_t bytesSent = send(fd, fullMsg.data(), fullMsg.size(), 0);
-    
-    if (bytesSent != static_cast<ssize_t>(fullMsg.size()))
+    if (bytesSent == -1)
     {
-        log(LL::ERROR, "Failed to send the complete message");
+        log(LL::ERROR, "Send failed with errno: " + std::to_string(errno));
+    }
+    else if (bytesSent != static_cast<ssize_t>(fullMsg.size()))
+    {
+        log(LL::ERROR, "Failed to send the complete message, sent " + std::to_string(bytesSent) + " of " + std::to_string(fullMsg.size()));
     }
 }
 

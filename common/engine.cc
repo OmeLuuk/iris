@@ -109,7 +109,7 @@ void Engine::sendMessage(const int fd, const MessageType type, const void *data,
 }
 
 void Engine::sendMessage(const int fd, const MessageType type, const std::string &msgToSend)
-{
+{log(LL::DEBUG, "fd XX: " + std::to_string(fd));
     connectionManager.sendMessage(fd, type, msgToSend.data(), msgToSend.size());
 }
 

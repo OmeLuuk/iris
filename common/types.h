@@ -71,7 +71,7 @@ public:
     UserUpdate(const uint8_t *data, size_t size)
     {
         const unsigned char *charData = static_cast<const unsigned char *>(data);
-        const ClientType type = static_cast<ClientType>(charData[0]);
+        type = static_cast<ClientType>(charData[0]);
         int offset = 1;
         userStatus = static_cast<UserStatus>(charData[offset++]);
         const uint8_t length = static_cast<uint8_t>(charData[offset++]);
@@ -83,6 +83,7 @@ public:
         return "UserUpdate";
     }
 
+    ClientType type;
     std::string username;
     UserStatus userStatus;
 };
@@ -94,6 +95,12 @@ public:
 
     SubscribeMessage(const uint8_t *data, size_t size)
     {
+        if (size > 255)
+        {
+            log(LL::ERROR, "Topic size exceeds 255 bytes. Ignoring subscription request.");
+            return;
+        }
+
         const auto dataChars = reinterpret_cast<const char *>(data);
         topic = std::string(dataChars, size);
     }
