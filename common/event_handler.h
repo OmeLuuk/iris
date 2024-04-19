@@ -7,7 +7,6 @@ class EventHandler
 {
 public:
     virtual ~EventHandler() = default;
-    virtual void onMessage(const MessageType messageType, const int fd, const void *data, size_t size){};
     virtual void onConnected(const int fd, const ClientType type){};
     virtual void onDisconnectedEvent(const int fd){};
 

@@ -45,8 +45,3 @@ void ServerConnectionManager::handleIntroMessage(const IntroMessage& message, co
 
     eventHandler->onConnected(client_fd, message.clientType);
 }
-
-void ServerConnectionManager::handleDataMessage(const MessageType type, const int client_fd, const uint8_t *data, const size_t size)
-{
-    eventHandler->onMessage(type, client_fd, data, size);
-}

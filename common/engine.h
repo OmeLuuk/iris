@@ -17,7 +17,6 @@ public:
     void Disconnect(int fd);
 
 protected:
-    virtual void onMessage(const MessageType type, int fd, const void *data, size_t size) override{};
     virtual void onConnected(const int fd, const ClientType type) override{};
     void onDisconnectedEvent(const int fd) override final;
     virtual void onDisconnected(const int fd){};

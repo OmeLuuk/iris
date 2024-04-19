@@ -33,33 +33,6 @@ IrisServer::~IrisServer()
 {
 }
 
-void IrisServer::onMessage(const MessageType type, int client_fd, const void *data, size_t size)
-{
-    log(LL::DEBUG, "Received a message:");
-    log(LL::DEBUG, data, size);
-
-    switch (type)
-    {
-    case MessageType::SUBSCRIBE:
-        //addSubscriber(client_fd, data, size);
-        break;
-    case MessageType::PUBLIC_MESSAGE:
-        // broadcastMessage(data, size);
-        break;
-    case MessageType::USER_UPDATE:
-        // handleUserUpdate(client_fd, data, size);
-        break;
-    }
-
-    // if (fdToClientType.at(client_fd) == ClientType::BROADCAST_PRODUCER)
-    // {
-    //     for (int fd : broadcastConsumers)
-    //     {
-    //         sendMessage(fd, MessageType::DATA, data, size);
-    //     }
-    // }
-}
-
 void IrisServer::handleMessage(const SubscribeMessage& message, const int fd)
 {
     topicSubscribers[message.topic].insert(fd);

@@ -63,7 +63,7 @@ void BaseConnectionManager::sendMessage(int fd, MessageType type, const void* da
     std::memcpy(fullMsg.data(), &msgSizeNetworkOrder, sizeof(msgSizeNetworkOrder));
     fullMsg[sizeof(msgSizeNetworkOrder)] = static_cast<char>(type);
     std::memcpy(fullMsg.data() + sizeof(msgSizeNetworkOrder) + 1, data, size); // +1 for the message type byte
-log(LL::DEBUG, "fd X: " + std::to_string(fd));
+
     ssize_t bytesSent = send(fd, fullMsg.data(), fullMsg.size(), 0);
     if (bytesSent == -1)
     {

@@ -14,14 +14,6 @@ public:
     ~IrisServer();
 
 private:
-    void onMessage(const MessageType type, int client_fd, const void *data, size_t size) override;
-    
-    //////
-    // void addSubscriber(int client_fd, const void *data, size_t size);
-    // void broadcastMessage(const void *data, size_t size);
-    // void handleUserUpdate(const int client_fd, const void *data, size_t size);
-    /////
-
     void handleMessage(const SubscribeMessage& message, const int fd) override;
     void handleMessage(const PublicMessage &message, const int fd) override;
     void handleMessage(const UserUpdate &message, const int fd) override;

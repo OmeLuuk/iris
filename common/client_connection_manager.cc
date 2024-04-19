@@ -121,25 +121,6 @@ void ClientConnectionManager::onMessageReceived(const int server_fd, const uint8
 {
     MessageVariant message = deserialize(data, size);
     eventHandler->onNewMessage(message);
-
-    return;
-
-    // old code
-    MessageType type = static_cast<MessageType>(data[0]);
-    switch (type)
-    {
-    case MessageType::ERROR:
-        break;
-    case MessageType::INTRO:
-        break;
-    case MessageType::DATA:
-    case MessageType::PUBLIC_MESSAGE:
-    case MessageType::USER_UPDATE:
-        handleDataMessage(type, server_fd, data + 1, size - 1);
-        break;
-    default:
-        log(LL::ERROR, "Unknown message type received!");
-    }
 }
 
 void ClientConnectionManager::onConnected(int server_fd)
@@ -148,9 +129,4 @@ void ClientConnectionManager::onConnected(int server_fd)
 
 void ClientConnectionManager::onDisconnected(int server_fd)
 {
-}
-
-void ClientConnectionManager::handleDataMessage(const MessageType type, const int server_fd, const uint8_t *data, const size_t size)
-{
-    eventHandler->onMessage(type, server_fd, data, size);
 }
