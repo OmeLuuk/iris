@@ -13,6 +13,7 @@ add_subdirectory(common)
 add_subdirectory(iris/server)
 add_subdirectory(iris/client)
 add_subdirectory(iris_chat)
+add_subdirectory(ray_tracer)
 
 # If you include other libraries in the future, link them here.
 # For example, for Boost.Asio:
