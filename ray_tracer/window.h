@@ -1,7 +1,7 @@
 #pragma once
 
 #include <xcb/xcb.h>
-#include "window_config.h"
+#include "types.h"
 
 class Window
 {
