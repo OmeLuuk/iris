@@ -2,6 +2,8 @@
 #include "ray_tracer.h"
 #include "debug_view.h"
 
+#include <vector>
+
 class Application
 {
 public:
@@ -9,10 +11,10 @@ public:
     void run();
 
 private:
-    RayTracer rayTracer;
-    DebugView *debugView;
-    bool isDebugMode;
+    std::vector<std::unique_ptr<Window>> windows;
+    xcb_connection_t *connection;
+    xcb_screen_t *screen;
 
-    void initialize();
+    void initialize(bool isDebugMode);
     void mainEventLoop();
 };

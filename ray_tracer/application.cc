@@ -1,19 +1,22 @@
 #include "application.h"
 #include <iostream>
 
-Application::Application(bool debugMode) : isDebugMode(debugMode), debugView(nullptr)
+Application::Application(bool isDebugMode)
 {
-    initialize();
+    initialize(isDebugMode);
 }
 
-void Application::initialize()
+void Application::initialize(bool isDebugMode)
 {
-    rayTracer.initialize();
-    if (isDebugMode)
-    {
-        debugView = new DebugView(rayTracer.getConnection(), rayTracer.getScreen());
-        debugView->initialize();
-    }
+    connection = xcb_connect(NULL, NULL); // Connect to the X server
+    xcb_screen_iterator_t iter = xcb_setup_roots_iterator(xcb_get_setup(connection));
+    screen = iter.data;
+
+    windows.emplace_back(std::make_unique<RayTracer>(connection, screen));
+    if (isDebugMode) windows.emplace_back(std::make_unique<DebugView>(connection, screen));
+    
+    for (auto& window : windows)
+        window->initialize();
 }
 
 void Application::run()
@@ -23,13 +26,17 @@ void Application::run()
 
 void Application::mainEventLoop()
 {
+    xcb_generic_event_t *event;
     while (true)
     {
-        // Process events, update both views
-        rayTracer.update();
-        if (isDebugMode)
+        while ((event = xcb_poll_for_event(connection)))
         {
-            debugView->drawDebugInfo();
+            for (auto& window : windows)
+                window->handleEvent(event);
+            free(event);
         }
+
+        for (auto& window : windows)
+            window->draw();
     }
 }
