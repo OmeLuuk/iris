@@ -1,6 +1,16 @@
 #include "application.h"
 #include <iostream>
 
+namespace
+{
+    // The window gets moved into the area not used for Ubuntu headers
+    // Ie, as the side header is 70px wide, all x coordinates below 70 are mapped
+    // to the same value, 0 as seen from the end of the side header
+    // To spawn a window with an offset of 500 from the side, you need x = 570
+    WindowConfig rayTracerWindowConfig(800, 600, 0, 20);
+    WindowConfig debugViewWindowConfig(500, 500, 870, 20);
+}
+
 Application::Application(bool isDebugMode)
 {
     initialize(isDebugMode);
@@ -12,8 +22,8 @@ void Application::initialize(bool isDebugMode)
     xcb_screen_iterator_t iter = xcb_setup_roots_iterator(xcb_get_setup(connection));
     screen = iter.data;
 
-    windows.emplace_back(std::make_unique<RayTracer>(connection, screen));
-    if (isDebugMode) windows.emplace_back(std::make_unique<DebugView>(connection, screen));
+    windows.emplace_back(std::make_unique<RayTracer>(connection, screen, rayTracerWindowConfig));
+    if (isDebugMode) windows.emplace_back(std::make_unique<DebugView>(connection, screen, debugViewWindowConfig));
     
     for (auto& window : windows)
         window->initialize();

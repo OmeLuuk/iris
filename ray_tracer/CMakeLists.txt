@@ -3,7 +3,7 @@ project(RayTracer)
 
 # Use pkg-config to find the XCB package
 find_package(PkgConfig REQUIRED)
-pkg_check_modules(XCB REQUIRED xcb)
+pkg_check_modules(XCB REQUIRED xcb xcb-icccm)
 
 # Add the main executable
 add_executable(ray_tracer

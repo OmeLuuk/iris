@@ -24,4 +24,5 @@ Ensure you have `g++` and `libxcb1-dev` installed:
 ```
 sudo apt install g++ libxcb1-dev
 sudo apt-get install pkg-config
+sudo apt-get install libxcb-icccm4 libxcb-icccm4-dev
 ```

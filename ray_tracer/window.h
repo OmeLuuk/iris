@@ -1,17 +1,18 @@
 #pragma once
 
 #include <xcb/xcb.h>
+#include "window_config.h"
 
 class Window
 {
 public:
-    Window(xcb_connection_t *conn, xcb_screen_t *scr);
-    ~Window();
+    Window(xcb_connection_t *conn, xcb_screen_t *scr, const WindowConfig &config);
+    virtual ~Window();
 
     void createWindow();
     void setupGraphicsContext(uint32_t color);
     void clearWindow();
-    virtual void initialize();
+    virtual void initialize() {};
     virtual void handleEvent(xcb_generic_event_t *event);
     virtual void draw() {};
     xcb_window_t getWindow() const { return window; }
@@ -24,7 +25,5 @@ protected:
     xcb_screen_t *screen;
     xcb_window_t window;
     xcb_gcontext_t gc;
-
-    const int width = 800;
-    const int height = 600;
+    WindowConfig config;
 };

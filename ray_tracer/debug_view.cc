@@ -2,7 +2,7 @@
 #include <iostream>
 #include <logging.h>
 
-DebugView::DebugView(xcb_connection_t *conn, xcb_screen_t *scr) : Window(conn, scr) {}
+DebugView::DebugView(xcb_connection_t *conn, xcb_screen_t *scr, const WindowConfig &cfg) : Window(conn, scr, cfg) {}
 
 void DebugView::initialize()
 {
