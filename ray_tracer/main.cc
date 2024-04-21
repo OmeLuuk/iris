@@ -1,11 +1,10 @@
-#include "ray_tracer.h"
+#include "application.h"
 #include <iostream>
 
 int main()
 {
-    std::cout << "Starting Ray Tracer..." << std::endl;
-    RayTracer rt;
-    rt.initialize();
-    rt.run();
+    log(LL::INFO, "Starting Ray Tracer...");
+    Application app(true);
+    app.run();
     return 0;
 }

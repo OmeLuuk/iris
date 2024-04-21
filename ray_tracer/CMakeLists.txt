@@ -9,6 +9,9 @@ pkg_check_modules(XCB REQUIRED xcb)
 add_executable(ray_tracer
     main.cc
     ray_tracer.cc
+    application.cc
+    debug_view.cc
+    window.cc
 )
 
 # Include directories found by pkg-config
@@ -19,6 +22,7 @@ link_directories(${XCB_LIBRARY_DIRS})
 
 # Add the linker flags
 target_link_libraries(ray_tracer
+    common
     ${XCB_LIBRARIES}
 )
 
