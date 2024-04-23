@@ -3,7 +3,7 @@ project(RayTracer)
 
 # Use pkg-config to find the XCB package
 find_package(PkgConfig REQUIRED)
-pkg_check_modules(XCB REQUIRED xcb xcb-icccm)
+pkg_check_modules(XCB REQUIRED xcb xcb-icccm xcb-image)
 
 # Add the main executable
 add_executable(ray_tracer
@@ -12,6 +12,7 @@ add_executable(ray_tracer
     application.cc
     debug_view.cc
     window.cc
+    scene.cc
 )
 
 # Include directories found by pkg-config

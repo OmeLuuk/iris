@@ -1,6 +1,6 @@
 #include "ray_tracer.h"
 
-RayTracer::RayTracer(xcb_connection_t *conn, xcb_screen_t *scr, const WindowConfig &cfg) : Window(conn, scr, cfg) {}
+RayTracer::RayTracer(xcb_connection_t *conn, xcb_screen_t *scr, const WindowConfig &cfg, const Scene &scene) : Window(conn, scr, cfg, scene) {}
 
 void RayTracer::initialize()
 {
@@ -19,12 +19,5 @@ void RayTracer::draw()
     {
         drawPixel(rand() % config.width, rand() % config.height, rand() % 0xFFFFFF);
     }
-    xcb_flush(connection);
-}
-
-void RayTracer::drawPixel(uint16_t x, uint16_t y, uint32_t color)
-{
-    xcb_change_gc(connection, gc, XCB_GC_FOREGROUND, &color);
-    xcb_point_t point = {x, y};
-    xcb_poly_point(connection, XCB_COORD_MODE_ORIGIN, window, gc, 1, &point);
+    flush();
 }

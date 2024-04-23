@@ -9,11 +9,10 @@
 class RayTracer : public Window
 {
 public:
-    RayTracer(xcb_connection_t *conn, xcb_screen_t *scr, const WindowConfig &cfg);
+    RayTracer(xcb_connection_t *conn, xcb_screen_t *scr, const WindowConfig &cfg, const Scene &scene);
     void initialize() override;
     void handleEvent(xcb_generic_event_t *event) override;
     void draw() override;
 
 private:
-    void drawPixel(uint16_t x, uint16_t y, uint32_t color);
 };

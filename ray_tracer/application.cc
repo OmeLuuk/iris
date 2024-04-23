@@ -22,8 +22,10 @@ void Application::initialize(bool isDebugMode)
     xcb_screen_iterator_t iter = xcb_setup_roots_iterator(xcb_get_setup(connection));
     screen = iter.data;
 
-    windows.emplace_back(std::make_unique<RayTracer>(connection, screen, rayTracerWindowConfig));
-    if (isDebugMode) windows.emplace_back(std::make_unique<DebugView>(connection, screen, debugViewWindowConfig));
+    scene = std::make_unique<Scene>();
+
+    windows.emplace_back(std::make_unique<RayTracer>(connection, screen, rayTracerWindowConfig, *scene));
+    if (isDebugMode) windows.emplace_back(std::make_unique<DebugView>(connection, screen, debugViewWindowConfig, *scene));
     
     for (auto& window : windows)
         window->initialize();

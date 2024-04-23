@@ -4,24 +4,22 @@
 #include <logging.h>
 #include <cstring>
 
-Window::Window(xcb_connection_t *conn, xcb_screen_t *scr, const WindowConfig &cfg)
- : connection(conn), screen(scr), window(0), gc(0), config(cfg)
+Window::Window(xcb_connection_t *conn, xcb_screen_t *scr, const WindowConfig &cfg, const Scene &scene)
+ : connection(conn), screen(scr), window(0), gc(0), config(cfg), scene(scene)
 {
     createWindow();
-    setupGraphicsContext(screen->white_pixel);
+    createPixmap();
+    setupGraphicsContext(screen->black_pixel, 0xffffffff);
     clearWindow();
 }
 
 Window::~Window()
 {
+    xcb_free_pixmap(connection, pixmap);
     if (gc)
-    {
         xcb_free_gc(connection, gc);
-    }
     if (window)
-    {
         xcb_destroy_window(connection, window);
-    }
 }
 
 void Window::createWindow()
@@ -45,18 +43,24 @@ void Window::createWindow()
     xcb_flush(connection);
 }
 
-void Window::setupGraphicsContext(uint32_t color)
+void Window::createPixmap()
+{
+    pixmap = xcb_generate_id(connection);
+    xcb_create_pixmap(connection, screen->root_depth, pixmap, window, config.width, config.height);
+}
+
+void Window::setupGraphicsContext(uint32_t background, uint32_t foreground)
 {
     gc = xcb_generate_id(connection);
-    uint32_t mask = XCB_GC_FOREGROUND;
-    uint32_t values[1] = {color};
-    xcb_create_gc(connection, gc, window, mask, values);
+    uint32_t mask = XCB_GC_FOREGROUND | XCB_GC_BACKGROUND | XCB_GC_GRAPHICS_EXPOSURES;
+    uint32_t values[3] = {foreground, background, 0};    // Ensure these are set correctly
+    xcb_create_gc(connection, gc, pixmap, mask, values); // Make sure gc is for pixmap
 }
 
 void Window::clearWindow()
 {
     xcb_rectangle_t rect = {0, 0, config.width, config.height};
-    xcb_poly_fill_rectangle(connection, window, gc, 1, &rect);
+    xcb_poly_fill_rectangle(connection, pixmap, gc, 1, &rect); // Use pixmap instead of window
     xcb_flush(connection);
 }
 
@@ -88,4 +92,23 @@ void Window::closeWindow()
         gc = 0; // Reset the graphics context handle after freeing it
     }
     xcb_flush(connection); // Ensure all commands sent to the X server are processed
+}
+
+void Window::drawPixel(uint16_t x, uint16_t y, uint32_t color)
+{
+    uint32_t value_list[1] = {color};
+    xcb_change_gc(connection, gc, XCB_GC_FOREGROUND, value_list);
+    xcb_point_t point = {x, y};
+    xcb_poly_point(connection, XCB_COORD_MODE_ORIGIN, pixmap, gc, 1, &point); // Draw on pixmap
+}
+
+void Window::flush()
+{
+    xcb_flush(connection);
+}
+
+void Window::refresh()
+{
+    xcb_copy_area(connection, pixmap, window, gc, 0, 0, 0, 0, config.width, config.height);
+    xcb_flush(connection);
 }

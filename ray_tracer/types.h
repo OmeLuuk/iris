@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cmath>
+
 struct WindowConfig
 {
     int width = 0;
@@ -7,8 +9,6 @@ struct WindowConfig
     int x;
     int y;
 };
-
-#include <cmath> // For std::sqrt
 
 class Vector3
 {
