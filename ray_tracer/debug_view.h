@@ -1,6 +1,5 @@
 #pragma once
 #include <xcb/xcb.h>
-#include <xcb/xcb_image.h>
 #include "window.h"
 
 class DebugView : public Window
@@ -13,5 +12,4 @@ public:
 
 private:
     void drawLine();
-    xcb_image_t *image;
 };

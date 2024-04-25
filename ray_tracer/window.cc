@@ -15,9 +15,28 @@ Window::Window(xcb_connection_t *conn, xcb_screen_t *scr, const WindowConfig &cf
 
 Window::~Window()
 {
-    xcb_free_pixmap(connection, pixmap);
     if (gc)
+    {
         xcb_free_gc(connection, gc);
+        gc = 0;
+    }
+
+    if (image)
+    {
+        if (image->data)
+        {
+            delete[] image->data;
+            image->data = nullptr;
+        }
+        image = nullptr; // not owned by us but by xcb
+    }
+
+    if (pixmap)
+    {
+        xcb_free_pixmap(connection, pixmap);
+        pixmap = 0;
+    }
+
     if (window)
         xcb_destroy_window(connection, window);
 }
@@ -45,8 +64,7 @@ void Window::createWindow()
 
 void Window::createPixmap()
 {
-    pixmap = xcb_generate_id(connection);
-    xcb_create_pixmap(connection, screen->root_depth, pixmap, window, config.width, config.height);
+    
 }
 
 void Window::setupGraphicsContext(uint32_t background, uint32_t foreground)

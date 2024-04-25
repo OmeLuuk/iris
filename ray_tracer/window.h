@@ -1,6 +1,7 @@
 #pragma once
 
 #include <xcb/xcb.h>
+#include <xcb/xcb_image.h>
 #include "types.h"
 #include "scene.h"
 
@@ -29,6 +30,7 @@ protected:
     xcb_window_t window;
     xcb_gcontext_t gc;
     xcb_pixmap_t pixmap;
+    xcb_image_t *image;
     const WindowConfig &config;
     const Scene &scene;
 
