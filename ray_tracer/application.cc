@@ -1,5 +1,6 @@
 #include "application.h"
 #include <iostream>
+#include <stopwatch.h>
 
 namespace
 {
@@ -14,6 +15,11 @@ namespace
 Application::Application(bool isDebugMode)
 {
     initialize(isDebugMode);
+}
+
+Application::~Application()
+{
+    Stopwatch::report();
 }
 
 void Application::initialize(bool isDebugMode)
@@ -39,16 +45,28 @@ void Application::run()
 void Application::mainEventLoop()
 {
     xcb_generic_event_t *event;
-    while (true)
+    bool running = true;
+    int s = Stopwatch::start("Application.TotalDuration");
+
+    while (running)
     {
         while ((event = xcb_poll_for_event(connection)))
         {
             for (auto& window : windows)
                 window->handleEvent(event);
+
+            if (event->response_type == XCB_KEY_PRESS)
+                running = false;
+
             free(event);
         }
 
         for (auto& window : windows)
             window->draw();
     }
+
+    for (auto &window : windows)
+        window.reset();
+
+    Stopwatch::stop("Application.TotalDuration", s);
 }

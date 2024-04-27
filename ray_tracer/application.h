@@ -9,6 +9,7 @@ class Application
 {
 public:
     Application(bool debugMode);
+    ~Application();
     void run();
 
 private:

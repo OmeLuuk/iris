@@ -16,12 +16,12 @@ public:
     void clearWindow();
     virtual void initialize() {};
     virtual void handleEvent(xcb_generic_event_t *event);
-    virtual void draw() {};
+    virtual void draw();
     xcb_window_t getWindow() const { return window; }
 
 protected:
-    void closeWindow();
-    void drawPixel(uint16_t x, uint16_t y, uint32_t color);
+    virtual void renderScreen() {};
+    inline void drawPixel(int x, int y, uint8_t R, uint8_t G, uint8_t B, uint8_t A);
     void flush();
     void refresh();
 
@@ -37,3 +37,15 @@ protected:
 private:
     void createPixmap();
 };
+
+inline void Window::drawPixel(int x, int y, uint8_t R, uint8_t G, uint8_t B, uint8_t A)
+{
+    int idx = (y * config.width + x) * 4;
+    if (idx >= 0 && idx + 3 < config.width * config.height * 4)
+    {   // Ensure idx+3 is within bounds
+        image->data[idx] = B;     // Blue
+        image->data[idx + 1] = G; // Green
+        image->data[idx + 2] = R; // Red
+        image->data[idx + 3] = A; // Alpha
+    }
+}
