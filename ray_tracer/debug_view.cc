@@ -27,8 +27,18 @@ void DebugView::renderScreen()
             drawPixel(x, y,
                       (uint8_t)((x + a) * 255 / config.width),
                       (uint8_t)((y + a) * 255 / config.height),
-                      0, 255);
+                      0);
         }
     }
     a += 0.01; // Update 'a' to move points more visibly
+}
+
+void DebugView::drawLine(int x1, int y1, int x2, int y2, uint8_t R, uint8_t G, uint8_t B)
+{
+    // TODO: clip to window
+
+    if (std::abs(x2 - x1) > std::abs(y2 - y1))
+    {
+        double coefficient = (y2 - y1) / (x2 - x1);
+    }
 }

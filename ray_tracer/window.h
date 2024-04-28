@@ -38,7 +38,7 @@ private:
     void createPixmap();
 };
 
-inline void Window::drawPixel(int x, int y, uint8_t R, uint8_t G, uint8_t B, uint8_t A)
+inline void Window::drawPixel(int x, int y, uint8_t R, uint8_t G, uint8_t B, uint8_t A = 255)
 {
     int idx = (y * config.width + x) * 4;
     if (idx >= 0 && idx + 3 < config.width * config.height * 4)
