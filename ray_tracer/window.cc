@@ -5,7 +5,7 @@
 #include <cstring>
 #include <stopwatch.h>
 
-Window::Window(xcb_connection_t *conn, xcb_screen_t *scr, const WindowConfig &cfg, const Scene &scene)
+Window::Window(xcb_connection_t *conn, xcb_screen_t *scr, const WindowConfig &cfg, Scene &scene)
  : connection(conn), screen(scr), window(0), gc(0), config(cfg), scene(scene)
 {
     createWindow();

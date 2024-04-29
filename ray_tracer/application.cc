@@ -8,8 +8,9 @@ namespace
     // Ie, as the side header is 70px wide, all x coordinates below 70 are mapped
     // to the same value, 0 as seen from the end of the side header
     // To spawn a window with an offset of 500 from the side, you need x = 570
-    WindowConfig rayTracerWindowConfig(800, 600, 0, 20);
-    WindowConfig debugViewWindowConfig(500, 500, 870, 20);
+    const WindowConfig rayTracerWindowConfig(800, 600, 0, 20);
+    const WindowConfig debugViewWindowConfig(500, 500, 870, 20);
+    constexpr int START_DISTANCE = 100;
 }
 
 Application::Application(bool isDebugMode)
@@ -29,8 +30,14 @@ void Application::initialize(bool isDebugMode)
     screen = iter.data;
 
     scene = std::make_unique<Scene>();
+    scene->canvas = Rectangle(
+                        Vector3(-rayTracerWindowConfig.width / 2, -rayTracerWindowConfig.height / 2, START_DISTANCE),
+                        Vector3(rayTracerWindowConfig.width / 2, -rayTracerWindowConfig.height / 2, START_DISTANCE),
+                        Vector3(-rayTracerWindowConfig.width / 2, rayTracerWindowConfig.height / 2, START_DISTANCE),
+                        Vector3(rayTracerWindowConfig.width / 2, rayTracerWindowConfig.height / 2, START_DISTANCE)
+                        );
 
-    windows.emplace_back(std::make_unique<RayTracer>(connection, screen, rayTracerWindowConfig, *scene));
+                        windows.emplace_back(std::make_unique<RayTracer>(connection, screen, rayTracerWindowConfig, *scene));
     if (isDebugMode) windows.emplace_back(std::make_unique<DebugView>(connection, screen, debugViewWindowConfig, *scene));
     
     for (auto& window : windows)

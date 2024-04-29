@@ -1,6 +1,11 @@
 #include "ray_tracer.h"
 
-RayTracer::RayTracer(xcb_connection_t *conn, xcb_screen_t *scr, const WindowConfig &cfg, const Scene &scene) : Window(conn, scr, cfg, scene) {}
+namespace
+{
+    constexpr int NUMBER_OF_DEBUG_LINES = 10;
+}
+
+RayTracer::RayTracer(xcb_connection_t *conn, xcb_screen_t *scr, const WindowConfig &cfg, Scene &scene) : Window(conn, scr, cfg, scene) {}
 
 void RayTracer::initialize()
 {
@@ -14,10 +19,17 @@ void RayTracer::handleEvent(xcb_generic_event_t *event)
 
 void RayTracer::renderScreen()
 {
-    clearWindow();
-    for (int i = 0; i < 500; ++i)
+    // add debug rays outside of normal loop to avoid extra checks in main pixel loop
+    refreshDebugLines();
+}
+
+void RayTracer::refreshDebugLines()
+{
+    scene.debugRays.clear();
+    double jumpSize = config.width / NUMBER_OF_DEBUG_LINES;
+
+    for (double x = scene.canvas.p0.x; x <= scene.canvas.p1.x; x += jumpSize)
     {
-        // drawPixel(rand() % config.width, rand() % config.height, rand() % 0xFFFFFF);
+        scene.debugRays.push_back({ Vector3(0,0,0), Vector3(x, (scene.canvas.p2.y + scene.canvas.p0.y), scene.canvas.p0.z)});
     }
-    flush();
 }

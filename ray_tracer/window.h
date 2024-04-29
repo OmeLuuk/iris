@@ -8,7 +8,7 @@
 class Window
 {
 public:
-    Window(xcb_connection_t *conn, xcb_screen_t *scr, const WindowConfig &config, const Scene &scene);
+    Window(xcb_connection_t *conn, xcb_screen_t *scr, const WindowConfig &config, Scene &scene);
     virtual ~Window();
 
     void createWindow();
@@ -32,7 +32,7 @@ protected:
     xcb_pixmap_t pixmap;
     xcb_image_t *image;
     const WindowConfig &config;
-    const Scene &scene;
+    Scene &scene;
 
 private:
     void createPixmap();

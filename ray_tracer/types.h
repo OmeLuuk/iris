@@ -36,6 +36,12 @@ public:
     }
 };
 
+struct Ray
+{
+    Vector3 origin;
+    Vector3 direction;
+};
+
 class Rectangle
 {
 public:
@@ -46,6 +52,6 @@ public:
         height = (p2 - p0).length();
     }
 
-    Vector3 p0, p1, p2, p3;
+    Vector3 p0, p1, p2, p3; // top left, top right, bottom left, bottom right
     double width = 0, height = 0;
 };
