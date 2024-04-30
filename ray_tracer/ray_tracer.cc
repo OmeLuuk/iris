@@ -30,6 +30,7 @@ void RayTracer::refreshDebugLines()
 
     for (double x = scene.canvas.p0.x; x <= scene.canvas.p1.x; x += jumpSize)
     {
-        scene.debugRays.push_back({ Vector3(0,0,0), Vector3(x, (scene.canvas.p2.y + scene.canvas.p0.y), scene.canvas.p0.z)});
+        Vector3 destination = {x, (scene.canvas.p2.y + scene.canvas.p0.y), scene.canvas.p0.z};
+        scene.debugRays.push_back({scene.camera, destination - scene.camera});
     }
 }

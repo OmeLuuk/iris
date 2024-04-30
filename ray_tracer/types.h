@@ -30,6 +30,11 @@ public:
         return Vector3(x - other.x, y - other.y, z - other.z);
     }
 
+    Vector3 operator*(const double other) const
+    {
+        return Vector3(other*x, other*y, other*z);
+    }
+
     double length() const
     {
         return std::sqrt(x * x + y * y + z * z);
