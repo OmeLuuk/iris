@@ -12,4 +12,5 @@ public:
     Vector3 camera;
 
     std::vector<Ray> debugRays;
+    std::vector<Sphere> spheres = {{ { 0, 0, 400 }, 150 }};
 };

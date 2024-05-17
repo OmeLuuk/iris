@@ -16,4 +16,5 @@ public:
 
 private:
     void refreshDebugLines();
+    Color castRay(const Vector3 &direction);
 };
