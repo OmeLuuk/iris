@@ -12,4 +12,6 @@ public:
 private:
     void renderScreen() override;
     void drawLine(int x1, int y1, int x2, int y2, uint8_t R, uint8_t G, uint8_t B);
+    void drawCircle(int centerX, int centerY, int radius, uint8_t R, uint8_t G, uint8_t B);
+    void drawOval(int centerX, int centerY, int radiusX, int radiusY, uint8_t R, uint8_t G, uint8_t B);
 };

@@ -14,15 +14,25 @@ struct WindowConfig
 struct Color
 {
     uint8_t r, g, b, a;
+    Color operator*(const float other) const
+    {
+        return Color(other * r, other * g, other * b, a);
+    }
 };
 
 class Vector3
 {
 public:
-    double x, y, z;
-
-    Vector3() : x(0), y(0), z(0) {}
-    Vector3(double x, double y, double z) : x(x), y(y), z(z) {}
+    Vector3() : x(.0f), y(.0f), z(.0f),
+                length(std::sqrt(.0f)),
+                lengthSquared(.0f)
+    {
+    }
+    Vector3(float x, float y, float z) : x(x), y(y), z(z),
+                                         length(std::sqrt(x * x + y * y + z * z)),
+                                         lengthSquared(x * x + y * y + z * z)
+    {
+    }
     Vector3(const Vector3 &other) = default;
     Vector3 &operator=(const Vector3 &other) = default;
 
@@ -36,15 +46,18 @@ public:
         return Vector3(x - other.x, y - other.y, z - other.z);
     }
 
-    Vector3 operator*(const double other) const
+    Vector3 operator*(const float other) const
     {
-        return Vector3(other*x, other*y, other*z);
+        return Vector3(other * x, other * y, other * z);
     }
 
-    double length() const
+    inline float dot(const Vector3 &other) const
     {
-        return std::sqrt(x * x + y * y + z * z);
+        return x * other.x + y * other.y + z * other.z;
     }
+
+    float x = .0f, y = .0f, z = .0f;
+    float length = .0f, lengthSquared = .0f;
 };
 
 struct Ray
@@ -59,25 +72,43 @@ public:
     Rectangle(const Vector3 &p0, const Vector3 &p1, const Vector3 &p2, const Vector3 &p3)
         : p0(p0), p1(p1), p2(p2), p3(p3)
     {
-        width = (p1 - p0).length();
-        height = (p2 - p0).length();
+        width = (p1 - p0).length;
+        height = (p2 - p0).length;
         halfWidth = width / 2;
         halfHeight = height / 2;
     }
 
     Vector3 p0, p1, p2, p3; // top left, top right, bottom left, bottom right
-    double width = 0, height = 0;
+    int width = 0, height = 0;
     int halfWidth = 0, halfHeight = 0;
 };
 
 class Sphere
 {
 public:
-    Sphere(Vector3 center, double r) : center(center), r(r)
+    Sphere(const Vector3 &center, const Color &color, const double r) : center(center), color(color), r(r)
     {
         c = center.x * center.x + center.y * center.y + center.z * center.z - r * r;
     }
+
+    inline Vector3 getNormalAtPoint(const Vector3 &point) const
+    {
+        return {point.x - center.x, point.y - center.y, point.z - center.z};
+    }
+
     Vector3 center;
-    double r;
-    double c; // we can store the C for the ABC formula in the sphere as it doesn't depend on the ray
+    Color color;
+    float r = .0f;
+    float c = .0f; // we can store the C for the ABC formula in the sphere as it doesn't depend on the ray
+};
+
+class Light
+{
+public:
+    Light(Vector3 position, const float intensity) : position(position), intensity(intensity)
+    {
+    }
+
+    Vector3 position;
+    const float intensity = .0f;
 };

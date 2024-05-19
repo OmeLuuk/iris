@@ -42,7 +42,10 @@ Color RayTracer::castRay(const Vector3 &direction)
         Vector3 intersection;
         if (solveRaySphereIntersection(direction, sphere, intersection))
         {
-            return {255, 255, 255, 255};
+            float angleMultiplier = angleIntensityMultiplier(sphere.getNormalAtPoint(intersection), scene.lights[0].position - intersection);
+            if (angleMultiplier > 0)
+                log(LL::DEBUG, std::to_string(angleMultiplier));
+            return Color{255, 255, 255, 255} * angleMultiplier; // sphere.color * angleMultiplier;
         }
     }
 
@@ -52,9 +55,9 @@ Color RayTracer::castRay(const Vector3 &direction)
 void RayTracer::refreshDebugLines()
 {
     scene.debugRays.clear();
-    double jumpSize = config.width / NUMBER_OF_DEBUG_LINES;
+    float jumpSize = config.width / NUMBER_OF_DEBUG_LINES;
 
-    for (double x = scene.canvas.p0.x; x <= scene.canvas.p1.x; x += jumpSize)
+    for (float x = scene.canvas.p0.x; x <= scene.canvas.p1.x; x += jumpSize)
     {
         Vector3 destination = {x, (scene.canvas.p2.y + scene.canvas.p0.y), scene.canvas.p0.z};
         scene.debugRays.push_back({scene.camera, destination - scene.camera});

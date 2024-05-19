@@ -164,6 +164,16 @@ void DebugView::renderScreen()
     for (const Ray& ray : scene.debugRays)
         drawLine(fx(ray.origin.x), gz(ray.origin.z), fx(rayMultiplier * ray.direction.x), gz(rayMultiplier * ray.direction.z), 255, 255, 0);
 
+    // Draw spheres as circles on the canvas
+    for (const Sphere& sphere : scene.spheres)
+    {
+        int screenX = fx(sphere.center.x);
+        int screenZ = gz(sphere.center.z);
+        int scaledRadiusX = static_cast<int>(sphere.r * scalex);
+        int scaledRadiusZ = static_cast<int>(sphere.r * scaley);
+        drawOval(screenX, screenZ, scaledRadiusX, scaledRadiusZ, 255, 255, 255);
+    }
+
     // draw camera
     drawPixel(fx(scene.camera.x), gz(scene.camera.z) - 1, 255, 0, 0);
 
@@ -204,6 +214,93 @@ void DebugView::drawLine(int rawx1, int rawy1, int rawx2, int rawy2, uint8_t R, 
         {
             int x = static_cast<int>(x1 + (y - y1) * coefficient);
             drawPixel(x, y, R, G, B);
+        }
+    }
+}
+
+void DebugView::drawCircle(int centerX, int centerY, int radius, uint8_t R, uint8_t G, uint8_t B)
+{
+    log(LL::DEBUG, "x: " + std::to_string(centerX) + ", y: " + std::to_string(centerY) + ", r: " + std::to_string(radius));
+    int x = radius;
+    int y = 0;
+    int p = 1 - radius;
+
+    while (x >= y)
+    {
+        drawPixel(centerX + x, centerY + y, R, G, B);
+        drawPixel(centerX - x, centerY + y, R, G, B);
+        drawPixel(centerX + x, centerY - y, R, G, B);
+        drawPixel(centerX - x, centerY - y, R, G, B);
+        drawPixel(centerX + y, centerY + x, R, G, B);
+        drawPixel(centerX - y, centerY + x, R, G, B);
+        drawPixel(centerX + y, centerY - x, R, G, B);
+        drawPixel(centerX - y, centerY - x, R, G, B);
+        if (p <= 0)
+        {
+            y++;
+            p += 2 * y + 1;
+        }
+        else
+        {
+            x--;
+            y++;
+            p += 2 * (y - x) + 1;
+        }
+    }
+}
+
+void DebugView::drawOval(int centerX, int centerY, int radiusX, int radiusY, uint8_t R, uint8_t G, uint8_t B)
+{
+    int x = 0;
+    int y = radiusY;
+
+    // Decision parameters for regions
+    int p1 = round(radiusY * radiusY - radiusX * radiusX * radiusY + 0.25 * radiusX * radiusX);
+    int px = 0;
+    int py = 2 * radiusX * radiusX * y;
+
+    // For the first region
+    while (px < py)
+    {
+        drawPixel(centerX + x, centerY + y, R, G, B);
+        drawPixel(centerX - x, centerY + y, R, G, B);
+        drawPixel(centerX + x, centerY - y, R, G, B);
+        drawPixel(centerX - x, centerY - y, R, G, B);
+
+        x++;
+        px += 2 * radiusY * radiusY;
+        if (p1 < 0)
+        {
+            p1 += radiusY * radiusY + px;
+        }
+        else
+        {
+            y--;
+            py -= 2 * radiusX * radiusX;
+            p1 += radiusY * radiusY + px - py;
+        }
+    }
+
+    // Decision parameters for the second region
+    int p2 = round(radiusY * radiusY * (x + 0.5) * (x + 0.5) + radiusX * radiusX * (y - 1) * (y - 1) - radiusX * radiusX * radiusY * radiusY);
+    while (y > 0)
+    {
+        drawPixel(centerX + x, centerY + y, R, G, B);
+        drawPixel(centerX - x, centerY + y, R, G, B);
+        drawPixel(centerX + x, centerY - y, R, G, B);
+        drawPixel(centerX - x, centerY - y, R, G, B);
+
+        y--;
+        py -= 2 * radiusX * radiusX;
+        if (p2 > 0)
+        {
+            p2 += radiusX * radiusX - py;
+        }
+        else
+        {
+            x++;
+            px += 2 * radiusY * radiusY;
+            p2 += radiusX * radiusX - py + px;
         }
     }
 }
