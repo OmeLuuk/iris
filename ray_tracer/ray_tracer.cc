@@ -43,8 +43,8 @@ Color RayTracer::castRay(const Vector3 &direction)
         if (solveRaySphereIntersection(direction, sphere, intersection))
         {
             float angleMultiplier = angleIntensityMultiplier(sphere.getNormalAtPoint(intersection), scene.lights[0].position - intersection);
-            if (angleMultiplier > 0)
-                log(LL::DEBUG, std::to_string(angleMultiplier));
+            // if (angleMultiplier > 0)
+            //     log(LL::DEBUG, std::to_string(angleMultiplier));
             return Color{255, 255, 255, 255} * angleMultiplier; // sphere.color * angleMultiplier;
         }
     }

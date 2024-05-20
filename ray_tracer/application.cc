@@ -26,7 +26,7 @@ Application::~Application()
 
 void Application::initialize(bool isDebugMode)
 {
-    initialize_acos_table();
+    LookupTable::initialize();
     connection = xcb_connect(NULL, NULL); // Connect to the X server
     xcb_screen_iterator_t iter = xcb_setup_roots_iterator(xcb_get_setup(connection));
     screen = iter.data;

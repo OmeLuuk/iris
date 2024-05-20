@@ -13,6 +13,7 @@ add_executable(ray_tracer
     debug_view.cc
     window.cc
     scene.cc
+    geometry.cc
 )
 
 # Include directories found by pkg-config

@@ -3,31 +3,26 @@
 #include "types.h"
 #include "logging.h"
 
-namespace
-{
-    constexpr int ACOS_TABLE_PRECISION = 1000;                // Number of entries in the acos table
-    std::vector<float> acos_table(ACOS_TABLE_PRECISION + 1);  // Lookup table for acos
-}
+#include <vector>
 
-inline void initialize_acos_table() // candidate to move to geometry.cc
+class LookupTable
 {
-    for (int i = 0; i <= ACOS_TABLE_PRECISION; ++i)
+public:
+    static void initialize();
+
+    static inline float acos(float dot_product)
     {
-        float dot_product = i * (1.0 / ACOS_TABLE_PRECISION);
-        acos_table[i] = std::acos(dot_product);
+        int index = static_cast<int>(dot_product * ACOS_TABLE_PRECISION);
+        return acos_table[index];
     }
 
-    for (int i = 0; i < 500; i++)
-        log(LL::DEBUG, "--> " + std::to_string(i) + ", " + std::to_string(acos_table.at(i)));
-}
+private:
+    static constexpr int ACOS_TABLE_PRECISION = 1000;
+    static std::vector<float> acos_table; // Declaration only.
 
-inline float lookup_acos(float dot_product)
-{
-    int index = static_cast<int>(dot_product * ACOS_TABLE_PRECISION);
-    for (int i = 0; i < 500; i++)
-        log(LL::DEBUG, "--> " + std::to_string(i) + ", " + std::to_string(acos_table.at(i)));
-    return acos_table[index];
-}
+    // Making constructors private to prevent instantiation
+    LookupTable() = delete;
+};
 
 inline float Q_rsqrt(float number)
 {
@@ -52,9 +47,8 @@ inline float angleIntensityMultiplier(const Vector3 &normal, const Vector3 &ligh
         return 0;
 
     float inverseSquareRoot = Q_rsqrt(normal.lengthSquared * lightDirection.lengthSquared);
-log(LL::DEBUG, std::to_string(dotProduct*inverseSquareRoot));
-return std::acos(dotProduct*inverseSquareRoot); 
-    return lookup_acos(dotProduct * inverseSquareRoot);
+
+    return LookupTable::acos(dotProduct * inverseSquareRoot);
 }
 
 inline bool solveRaySphereIntersection(const Vector3 &ray, const Sphere &sphere, Vector3 &intersection)
