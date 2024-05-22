@@ -62,7 +62,8 @@
         "mutex": "cpp",
         "variant": "cpp",
         "cassert": "cpp",
-        "cinttypes": "cpp"
+        "cinttypes": "cpp",
+        "optional": "cpp"
     },
     "C_Cpp.default.compilerPath": "/usr/bin/g++-11"
 }

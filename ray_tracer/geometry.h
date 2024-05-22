@@ -4,6 +4,7 @@
 #include "logging.h"
 
 #include <vector>
+#include <optional>
 
 class LookupTable
 {
@@ -51,21 +52,19 @@ inline float angleIntensityMultiplier(const Vector3 &normal, const Vector3 &ligh
     return LookupTable::acos(dotProduct * inverseSquareRoot);
 }
 
-inline bool solveRaySphereIntersection(const Vector3 &ray, const Sphere &sphere, Vector3 &intersection)
+inline std::optional<Vector3> solveRaySphereIntersection(const Vector3 &ray, const Sphere &sphere)
 {
     float a = ray.x * ray.x + ray.y * ray.y + ray.z * ray.z;
     float b = -2 * sphere.center.x * ray.x - 2 * sphere.center.y * ray.y - 2 * sphere.center.z * ray.z;
     float D = b * b - 4 * a * sphere.c;
     if (D <= 0)
-        return false;
+        return std::nullopt;
 
     float l1 = (-b + sqrt(D)) / (2 * a);
     float l2 = (-b - sqrt(D)) / (2 * a);
 
     if (l1 < l2)
-        intersection = {l1 * ray.x, l1 * ray.y, l1 * ray.z};
+        return std::optional<Vector3>({l1 * ray.x, l1 * ray.y, l1 * ray.z});
     else
-        intersection = {l2 * ray.x, l2 * ray.y, l2 * ray.z};
-
-    return true;
+        return std::optional<Vector3>({l2 * ray.x, l2 * ray.y, l2 * ray.z});
 }

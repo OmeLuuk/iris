@@ -37,17 +37,27 @@ void RayTracer::renderScreen()
 
 Color RayTracer::castRay(const Vector3 &direction)
 {
+    std::optional<Vector3> closestIntersection;
+    std::optional<Sphere> closestHitSphere;
     for (const Sphere& sphere : scene.spheres)
     {
-        Vector3 intersection;
-        if (solveRaySphereIntersection(direction, sphere, intersection))
+        const auto intersection = solveRaySphereIntersection(direction, sphere);
+
+        bool betterIntersection = intersection && 
+            (!closestIntersection || intersection->z < closestIntersection->z);
+        
+        if (betterIntersection)
         {
-            float angleMultiplier = angleIntensityMultiplier(sphere.getNormalAtPoint(intersection), scene.lights[0].position - intersection);
-            return sphere.color * angleMultiplier;
+            closestIntersection = intersection;
+            closestHitSphere = sphere;
         }
     }
 
-    return {0, 0, 0, 0};
+    if (!closestIntersection)
+        return {0, 0, 0, 0};
+
+    float angleMultiplier = angleIntensityMultiplier(closestHitSphere->getNormalAtPoint(*closestIntersection), scene.lights[0].position - *closestIntersection);
+    return closestHitSphere->color * angleMultiplier;
 }
 
 void RayTracer::refreshDebugLines()
