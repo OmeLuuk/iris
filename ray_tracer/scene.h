@@ -12,6 +12,7 @@ public:
     Vector3 camera;
 
     std::vector<Ray> debugRays;
-    std::vector<Sphere> spheres = {{ { 0, 0, 2000 }, {255, 0, 0, 255}, 1800 }};
+    std::vector<Sphere> spheres = {{ { -1000, 0, 1300 }, {255, 0, 0, 255}, 1000 },
+                                    {{ 1200, 0, 1200}, {0, 255, 0, 255}, 800}};
     std::vector<Light> lights = {{{-300, -300, 100}, 1}};
 };

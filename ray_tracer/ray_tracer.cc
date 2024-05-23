@@ -56,8 +56,10 @@ Color RayTracer::castRay(const Vector3 &direction)
     if (!closestIntersection)
         return {0, 0, 0, 0};
 
-    float angleMultiplier = angleIntensityMultiplier(closestHitSphere->getNormalAtPoint(*closestIntersection), scene.lights[0].position - *closestIntersection);
-    return closestHitSphere->color * angleMultiplier;
+    float angleMultiplier = 0;
+    for (const Light& light : scene.lights)
+        angleMultiplier += angleIntensityMultiplier(closestHitSphere->getNormalAtPoint(*closestIntersection), light.position - *closestIntersection);
+    return closestHitSphere->color * std::clamp(angleMultiplier, 0.0f, 1.0f);
 }
 
 void RayTracer::refreshDebugLines()
