@@ -29,13 +29,13 @@ void RayTracer::renderScreen()
         for (int y = scene.canvas.p0.y; y < scene.canvas.p2.y; y++)
         {
             Vector3 direction = {x, y, scene.canvas.p0.z};
-            Color color = castRay(direction);
+            Color color = castPrimaryRay(direction);
             drawPixel(x + scene.canvas.halfWidth, y + scene.canvas.halfHeight, color.r, color.g, color.b, color.a);
         }
     }
 }
 
-Color RayTracer::castRay(const Vector3 &direction)
+Color RayTracer::castPrimaryRay(const Vector3 &direction)
 {
     std::optional<Vector3> closestIntersection;
     std::optional<Sphere> closestHitSphere;

@@ -9,7 +9,7 @@ namespace
     // Ie, as the side header is 70px wide, all x coordinates below 70 are mapped
     // to the same value, 0 as seen from the end of the side header
     // To spawn a window with an offset of 500 from the side, you need x = 570
-    const WindowConfig rayTracerWindowConfig(800, 600, 0, 20);
+    const WindowConfig rayTracerWindowConfig(700, 700, 0, 20);
     const WindowConfig debugViewWindowConfig(500, 500, 870, 20);
     constexpr int START_DISTANCE = 100;
 }

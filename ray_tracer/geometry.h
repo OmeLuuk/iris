@@ -52,10 +52,10 @@ inline float angleIntensityMultiplier(const Vector3 &normal, const Vector3 &ligh
     return LookupTable::acos(dotProduct * inverseSquareRoot);
 }
 
-inline std::optional<Vector3> solveRaySphereIntersection(const Vector3 &ray, const Sphere &sphere)
+inline std::optional<Vector3> solveRaySphereIntersection(const Vector3 &direction, const Sphere &sphere)
 {
-    float a = ray.x * ray.x + ray.y * ray.y + ray.z * ray.z;
-    float b = -2 * sphere.center.x * ray.x - 2 * sphere.center.y * ray.y - 2 * sphere.center.z * ray.z;
+    float a = direction.x * direction.x + direction.y * direction.y + direction.z * direction.z;
+    float b = -2 * (sphere.center.x * direction.x + sphere.center.y * direction.y + sphere.center.z * direction.z);
     float D = b * b - 4 * a * sphere.c;
     if (D <= 0)
         return std::nullopt;
@@ -64,7 +64,34 @@ inline std::optional<Vector3> solveRaySphereIntersection(const Vector3 &ray, con
     float l2 = (-b - sqrt(D)) / (2 * a);
 
     if (l1 < l2)
-        return std::optional<Vector3>({l1 * ray.x, l1 * ray.y, l1 * ray.z});
+        return std::optional<Vector3>({l1 * direction.x, l1 * direction.y, l1 * direction.z});
     else
-        return std::optional<Vector3>({l2 * ray.x, l2 * ray.y, l2 * ray.z});
+        return std::optional<Vector3>({l2 * direction.x, l2 * direction.y, l2 * direction.z});
+}
+
+inline std::optional<Vector3> solveRaySphereIntersection(const Ray &ray, const Sphere &sphere)
+{
+    Vector3 oc = ray.origin - sphere.center;
+
+    float a = ray.direction.dot(ray.direction);
+    float b = 2.0f * oc.dot(ray.direction);
+    float c = oc.dot(oc) - sphere.r * sphere.r;
+
+    float discriminant = b * b - 4 * a * c;
+    if (discriminant <= 0)
+        return std::nullopt;
+
+    float sqrtD = std::sqrt(discriminant);
+    float t1 = (-b - sqrtD) / (2 * a);
+    float t2 = (-b + sqrtD) / (2 * a);
+
+    float t = t1 < t2 ? t1 : t2;
+    if (t < 0)
+        t = t1 > t2 ? t1 : t2;
+    if (t < 0)
+        return std::nullopt;
+
+    return std::optional<Vector3>({ray.origin.x + t * ray.direction.x,
+                                   ray.origin.y + t * ray.direction.y,
+                                   ray.origin.z + t * ray.direction.z});
 }
