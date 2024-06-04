@@ -5,6 +5,7 @@
 namespace
 {
     constexpr int NUMBER_OF_DEBUG_LINES = 10;
+    constexpr int MAX_DEPTH = 5;
 }
 
 RayTracer::RayTracer(xcb_connection_t *conn, xcb_screen_t *scr, const WindowConfig &cfg, Scene &scene) : Window(conn, scr, cfg, scene) {}
@@ -56,10 +57,56 @@ Color RayTracer::castPrimaryRay(const Vector3 &direction)
     if (!closestIntersection)
         return {0, 0, 0, 0};
 
+    Vector3 notNormalizedNormal = closestHitSphere->getNotNormalizedNormalAtPoint(*closestIntersection);
+
     float angleMultiplier = 0;
     for (const Light& light : scene.lights)
-        angleMultiplier += angleIntensityMultiplier(closestHitSphere->getNormalAtPoint(*closestIntersection), light.position - *closestIntersection);
-    return closestHitSphere->color * std::clamp(angleMultiplier, 0.0f, 1.0f);
+        angleMultiplier += angleIntensityMultiplier(notNormalizedNormal, light.position - *closestIntersection);
+
+    Color diffuseColor = closestHitSphere->material.color * (1 - closestHitSphere->material.reflexivity) * std::clamp(angleMultiplier, 0.0f, 1.0f);
+
+    Ray secondaryRay = {*closestIntersection, reflectedVector(direction, notNormalizedNormal)};
+    Color reflectedColor = castSecondaryRay(secondaryRay, MAX_DEPTH) * closestHitSphere->material.reflexivity;
+    
+    return diffuseColor + reflectedColor;
+}
+
+Color RayTracer::castSecondaryRay(const Ray &ray, int depth)
+{
+    if (depth <= 0)
+        return {0, 0, 0, 0};
+    
+    std::optional<Vector3> closestIntersection;
+    std::optional<Sphere> closestHitSphere;
+    for (const Sphere &sphere : scene.spheres)
+    {
+        const auto intersection = solveRaySphereIntersection(ray, sphere);
+
+        bool betterIntersection = intersection &&
+                                  (!closestIntersection || intersection->z < closestIntersection->z);
+
+        if (betterIntersection)
+        {
+            closestIntersection = intersection;
+            closestHitSphere = sphere;
+        }
+    }
+
+    if (!closestIntersection)
+        return {0, 0, 0, 0};
+
+    Vector3 notNormalizedNormal = closestHitSphere->getNotNormalizedNormalAtPoint(*closestIntersection);
+
+    float angleMultiplier = 0;
+    for (const Light &light : scene.lights)
+        angleMultiplier += angleIntensityMultiplier(notNormalizedNormal, light.position - *closestIntersection);
+
+    Color diffuseColor = closestHitSphere->material.color * (1 - closestHitSphere->material.reflexivity) * std::clamp(angleMultiplier, 0.0f, 1.0f);
+
+    Ray secondaryRay = {*closestIntersection, reflectedVector(ray.direction, notNormalizedNormal)};
+    Color reflectedColor = castSecondaryRay(secondaryRay, depth - 1) * closestHitSphere->material.reflexivity;
+
+    return diffuseColor + reflectedColor;
 }
 
 void RayTracer::refreshDebugLines()

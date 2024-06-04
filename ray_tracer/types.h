@@ -18,6 +18,17 @@ struct Color
     {
         return Color(other * r, other * g, other * b, a);
     }
+
+    Color operator+(const Color &other) const
+    {
+        return Color(r + other.r, g + other.g, b + other.b, a + other.a);
+    }
+};
+
+struct Material
+{
+    Color color;
+    float reflexivity = 0.0f;
 };
 
 class Vector3
@@ -60,6 +71,12 @@ public:
     float length = .0f, lengthSquared = .0f;
 };
 
+struct Hit
+{
+    const Vector3 &intersection;
+    const Material &material;
+};
+
 struct Ray
 {
     Vector3 origin;
@@ -86,18 +103,18 @@ public:
 class Sphere
 {
 public:
-    Sphere(const Vector3 &center, const Color &color, const double r) : center(center), color(color), r(r)
+    Sphere(const Vector3 &center, const Material &material, const double r) : center(center), material(material), r(r)
     {
         c = center.x * center.x + center.y * center.y + center.z * center.z - r * r;
     }
 
-    inline Vector3 getNormalAtPoint(const Vector3 &point) const
+    inline Vector3 getNotNormalizedNormalAtPoint(const Vector3 &point) const
     {
         return {point.x - center.x, point.y - center.y, point.z - center.z};
     }
 
     Vector3 center;
-    Color color;
+    Material material;
     float r = .0f;
     float c = .0f; // we can store the C for the ABC formula in the sphere as it doesn't depend on the ray
 };

@@ -46,7 +46,6 @@ inline float angleIntensityMultiplier(const Vector3 &normal, const Vector3 &ligh
     float dotProduct = normal.dot(lightDirection);
     if (dotProduct < 0)
         return 0;
-
     float inverseSquareRoot = Q_rsqrt(normal.lengthSquared * lightDirection.lengthSquared);
 
     return LookupTable::acos(dotProduct * inverseSquareRoot);
@@ -60,8 +59,8 @@ inline std::optional<Vector3> solveRaySphereIntersection(const Vector3 &directio
     if (D <= 0)
         return std::nullopt;
 
-    float l1 = (-b + sqrt(D)) / (2 * a);
-    float l2 = (-b - sqrt(D)) / (2 * a);
+    float l1 = (-b + std::sqrt(D)) / (2 * a);
+    float l2 = (-b - std::sqrt(D)) / (2 * a);
 
     if (l1 < l2)
         return std::optional<Vector3>({l1 * direction.x, l1 * direction.y, l1 * direction.z});
@@ -94,4 +93,11 @@ inline std::optional<Vector3> solveRaySphereIntersection(const Ray &ray, const S
     return std::optional<Vector3>({ray.origin.x + t * ray.direction.x,
                                    ray.origin.y + t * ray.direction.y,
                                    ray.origin.z + t * ray.direction.z});
+}
+
+inline Vector3 reflectedVector(const Vector3 &ray, const Vector3 &surfaceNormal)
+{
+    //r = d−2(d⋅n) n
+    Vector3 normalizedSurfaceNormal = surfaceNormal * Q_rsqrt(surfaceNormal.lengthSquared);
+    return ray - normalizedSurfaceNormal * 2 * ray.dot(normalizedSurfaceNormal);
 }

@@ -17,4 +17,5 @@ public:
 private:
     void refreshDebugLines();
     Color castPrimaryRay(const Vector3 &direction);
+    Color castSecondaryRay(const Ray &ray, int depth);
 };
