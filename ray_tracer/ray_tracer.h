@@ -3,7 +3,7 @@
 #include <xcb/xcb.h>
 #include <iostream>
 #include <stdlib.h>
-#include "logging.h"
+#include <logging.h>
 #include "window.h"
 
 class RayTracer : public Window

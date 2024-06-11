@@ -62,6 +62,13 @@ public:
         return Vector3(other * x, other * y, other * z);
     }
 
+    bool operator==(const Vector3 &other) const
+    {
+        return std::abs(x - other.x) < 0.001 &&
+               std::abs(y - other.y) < 0.001 &&
+               std::abs(z - other.z) < 0.001;
+    }
+
     inline float dot(const Vector3 &other) const
     {
         return x * other.x + y * other.y + z * other.z;
