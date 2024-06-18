@@ -2,6 +2,7 @@
 
 #include <cmath>
 #include <cstdint>
+#include <ostream>
 
 struct WindowConfig
 {
@@ -22,6 +23,21 @@ struct Color
     Color operator+(const Color &other) const
     {
         return Color(r + other.r, g + other.g, b + other.b, a + other.a);
+    }
+};
+
+struct HDColor
+{
+    float r = .0f, g = .0f, b = .0f, a = .0f;
+
+    HDColor operator*(const float other) const
+    {
+        return HDColor(other * r, other * g, other * b, a);
+    }
+
+    HDColor operator+(const HDColor &other) const
+    {
+        return HDColor(r + other.r, g + other.g, b + other.b, a + other.a);
     }
 };
 
@@ -64,9 +80,9 @@ public:
 
     bool operator==(const Vector3 &other) const
     {
-        return std::abs(x - other.x) < 0.001 &&
-               std::abs(y - other.y) < 0.001 &&
-               std::abs(z - other.z) < 0.001;
+        return std::abs(x - other.x) < 0.01 &&
+               std::abs(y - other.y) < 0.01 &&
+               std::abs(z - other.z) < 0.01;
     }
 
     inline float dot(const Vector3 &other) const
@@ -77,6 +93,12 @@ public:
     float x = .0f, y = .0f, z = .0f;
     float length = .0f, lengthSquared = .0f;
 };
+
+inline std::ostream &operator<<(std::ostream &os, const Vector3 &v)
+{
+    os << "(" << v.x << ", " << v.y << ", " << v.z << ")";
+    return os;
+}
 
 struct Hit
 {
