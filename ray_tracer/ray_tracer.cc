@@ -30,13 +30,13 @@ void RayTracer::renderScreen()
         for (int y = scene.canvas.p0.y; y < scene.canvas.p2.y; y++)
         {
             Vector3 direction = {x, y, scene.canvas.p0.z};
-            Color color = castPrimaryRay(direction);
+            Color color = Color(castPrimaryRay(direction));
             drawPixel(x + scene.canvas.halfWidth, y + scene.canvas.halfHeight, color.r, color.g, color.b, color.a);
         }
     }
 }
 
-Color RayTracer::castPrimaryRay(const Vector3 &direction)
+HDColor RayTracer::castPrimaryRay(const Vector3 &direction)
 {
     std::optional<Vector3> closestIntersection;
     std::optional<Sphere> closestHitSphere;
@@ -64,23 +64,19 @@ Color RayTracer::castPrimaryRay(const Vector3 &direction)
     {
         angleMultiplier += angleIntensityMultiplier(normal, light.position - *closestIntersection);
     }
-    Color diffuseColor = closestHitSphere->material.color * std::clamp(angleMultiplier, 0.0f, 1.0f);
+    HDColor diffuseColor = closestHitSphere->material.color * std::clamp(angleMultiplier, 0.0f, 1.0f);
 
     // Calculate reflected component
     Vector3 reflectionDirection = reflectedVector(direction, normal);
     Ray secondaryRay = {*closestIntersection, reflectionDirection};
-    Color reflectedColor = castSecondaryRay(secondaryRay, MAX_DEPTH);
-
-
-    return reflectedColor * closestHitSphere->material.reflexivity;
-    
+    HDColor reflectedColor = castSecondaryRay(secondaryRay, MAX_DEPTH);
     
     // Combine based on material properties
     float reflectivity = closestHitSphere->material.reflexivity;
     return diffuseColor * (1 - reflectivity) + reflectedColor * reflectivity;
 }
 
-Color RayTracer::castSecondaryRay(const Ray &ray, int depth)
+HDColor RayTracer::castSecondaryRay(const Ray &ray, int depth)
 {
     if (depth <= 0)
         return {0, 0, 0, 0};
@@ -110,10 +106,10 @@ Color RayTracer::castSecondaryRay(const Ray &ray, int depth)
     for (const Light &light : scene.lights)
         angleMultiplier += angleIntensityMultiplier(notNormalizedNormal, light.position - *closestIntersection);
 
-    Color diffuseColor = closestHitSphere->material.color * std::clamp(angleMultiplier, 0.0f, 1.0f);
-return diffuseColor;
+    HDColor diffuseColor = closestHitSphere->material.color * std::clamp(angleMultiplier, 0.0f, 1.0f);
+
     Ray secondaryRay = {*closestIntersection, reflectedVector(ray.direction, notNormalizedNormal)};
-    Color reflectedColor = castSecondaryRay(secondaryRay, depth - 1);
+    HDColor reflectedColor = castSecondaryRay(secondaryRay, depth - 1);
 
     float reflectivity = closestHitSphere->material.reflexivity;
     return diffuseColor * (1 - reflectivity) + reflectedColor * reflectivity;

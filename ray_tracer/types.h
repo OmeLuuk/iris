@@ -12,38 +12,43 @@ struct WindowConfig
     int y;
 };
 
-struct Color
-{
-    uint8_t r, g, b, a;
-    Color operator*(const float other) const
-    {
-        return Color(other * r, other * g, other * b, a);
-    }
-
-    Color operator+(const Color &other) const
-    {
-        return Color(r + other.r, g + other.g, b + other.b, a + other.a);
-    }
-};
-
 struct HDColor
 {
-    float r = .0f, g = .0f, b = .0f, a = .0f;
+    float r = 0.0f, g = 0.0f, b = 0.0f, a = 1.0f;
+
+    HDColor() = default;
+    HDColor(float r, float g, float b, float a = 1.0f) : r(r), g(g), b(b), a(a) {}
 
     HDColor operator*(const float other) const
     {
-        return HDColor(other * r, other * g, other * b, a);
+        return {r * other, g * other, b * other, a};
     }
 
     HDColor operator+(const HDColor &other) const
     {
-        return HDColor(r + other.r, g + other.g, b + other.b, a + other.a);
+        return {r + other.r, g + other.g, b + other.b, a + other.a};
+    }
+};
+
+struct Color
+{
+    uint8_t r, g, b, a;
+
+    Color() = default;
+    Color(uint8_t r, uint8_t g, uint8_t b, uint8_t a) : r(r), g(g), b(b), a(a) {}
+
+    explicit Color(const HDColor &hdColor)
+    {
+        r = static_cast<uint8_t>(std::min(std::max(hdColor.r * 255, 0.0f), 255.0f));
+        g = static_cast<uint8_t>(std::min(std::max(hdColor.g * 255, 0.0f), 255.0f));
+        b = static_cast<uint8_t>(std::min(std::max(hdColor.b * 255, 0.0f), 255.0f));
+        a = static_cast<uint8_t>(std::min(std::max(hdColor.a * 255, 0.0f), 255.0f));
     }
 };
 
 struct Material
 {
-    Color color;
+    HDColor color;
     float reflexivity = 0.0f;
 };
 
