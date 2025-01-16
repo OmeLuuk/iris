@@ -28,6 +28,11 @@ struct HDColor
     {
         return {r + other.r, g + other.g, b + other.b, a + other.a};
     }
+
+    std::string toString() const
+    {
+        return std::string("(" + std::to_string(r) + ", " + std::to_string(g) + ", " + std::to_string(b) + ")");
+    }
 };
 
 struct Color
@@ -93,6 +98,11 @@ public:
     inline float dot(const Vector3 &other) const
     {
         return x * other.x + y * other.y + z * other.z;
+    }
+
+    std::string toString() const
+    {
+        return std::string("(" + std::to_string(x) + ", " + std::to_string(y) + ", " + std::to_string(z) + ")");
     }
 
     float x = .0f, y = .0f, z = .0f;

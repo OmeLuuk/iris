@@ -17,5 +17,5 @@ public:
 private:
     void refreshDebugLines();
     HDColor castPrimaryRay(const Vector3 &direction);
-    HDColor castSecondaryRay(const Ray &ray, int depth);
+    HDColor castSecondaryRay(const Ray &ray, int depth, std::vector<Sphere *> &hitSpheres);
 };

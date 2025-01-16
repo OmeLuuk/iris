@@ -48,8 +48,27 @@ inline float angleIntensityMultiplier(const Vector3 &normal, const Vector3 &ligh
         return 0;
     float inverseSquareRoot = Q_rsqrt(normal.lengthSquared * lightDirection.lengthSquared);
 
-    return LookupTable::acos(dotProduct * inverseSquareRoot);
+    return dotProduct * inverseSquareRoot;
 }
+
+// inline float angleIntensityMultiplier(const Vector3 &normal, const Vector3 &lightDirection)
+// {
+//     float dotProduct = normal.dot(lightDirection);
+//     if (dotProduct <= 0.0f)
+//         return 0.0f;
+
+//     // If you're using lengthSquared + Q_rsqrt, you can just do:
+//     float inverseSquareRoot = Q_rsqrt(normal.lengthSquared * lightDirection.lengthSquared);
+//     // This is 1 / (|n|*|l|)
+
+//     float cosine = dotProduct * inverseSquareRoot; // This is cos(theta)
+//     if (cosine < 0.0f)
+//         return 0.0f;
+//     return cosine;
+
+//     // or simply:
+//     // return std::max(0.0f, cosine);
+// }
 
 inline std::optional<Vector3> solveRaySphereIntersection(const Vector3 &direction, const Sphere &sphere)
 {
@@ -62,10 +81,12 @@ inline std::optional<Vector3> solveRaySphereIntersection(const Vector3 &directio
     float l1 = (-b + std::sqrt(D)) / (2 * a);
     float l2 = (-b - std::sqrt(D)) / (2 * a);
 
-    if (l1 < l2)
+    if (l1 < l2 && l1 > 0.1f)
         return std::optional<Vector3>({l1 * direction.x, l1 * direction.y, l1 * direction.z});
-    else
+    else if (l2 > 0.1f)
         return std::optional<Vector3>({l2 * direction.x, l2 * direction.y, l2 * direction.z});
+
+    return std::nullopt;
 }
 
 inline std::optional<Vector3> solveRaySphereIntersection(const Ray &ray, const Sphere &sphere)
