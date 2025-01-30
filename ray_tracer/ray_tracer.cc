@@ -119,7 +119,7 @@ HDColor RayTracer::castSecondaryRay(const Ray &ray, int depth, std::vector<Spher
 
     if (!closestIntersection)
         return {0, 0, 0, 0};
-if (PRINT_TO_SCREEN) log(LL::DEBUG, "inters: " + closestIntersection->toString());
+        
     Vector3 notNormalizedNormal = closestHitSphere->getNotNormalizedNormalAtPoint(*closestIntersection);
 
     float angleMultiplier = 0;

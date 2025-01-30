@@ -1,5 +1,6 @@
 #include "application.h"
 #include "geometry.h"
+#include "config.h"
 #include <iostream>
 #include <stopwatch.h>
 
@@ -27,6 +28,8 @@ Application::~Application()
 void Application::initialize(bool isDebugMode)
 {
     LookupTable::initialize();
+    Config parsed = parseConfig("config.txt");
+    
     connection = xcb_connect(NULL, NULL); // Connect to the X server
     xcb_screen_iterator_t iter = xcb_setup_roots_iterator(xcb_get_setup(connection));
     screen = iter.data;
